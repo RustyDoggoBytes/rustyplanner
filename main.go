@@ -29,5 +29,5 @@ func main() {
 		component.Render(r.Context(), w)
 	})
 
-	log.Fatal(http.ListenAndServe("127.0.0.1:8080", mux))
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
