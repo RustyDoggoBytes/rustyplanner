@@ -22,6 +22,7 @@ func getMondayOfCurrentWeek(now time.Time) time.Time {
 }
 
 func processWeeklyMealFromForm(form url.Values) []MealPlan {
+	var dates []string
 	var breakfast []string
 	var lunch []string
 	var snack1 []string
@@ -29,7 +30,9 @@ func processWeeklyMealFromForm(form url.Values) []MealPlan {
 	var dinner []string
 
 	for key, meals := range form {
-		if key == "breakfast" {
+		if key == "date" {
+			dates = meals
+		} else if key == "breakfast" {
 			breakfast = meals
 		} else if key == "snack-1" {
 			snack1 = meals
@@ -46,8 +49,14 @@ func processWeeklyMealFromForm(form url.Values) []MealPlan {
 
 	newMap := make([]MealPlan, len(days))
 	for i, day := range days {
+		date, err := time.Parse("2006-01-02", dates[i])
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		newMap[i] = MealPlan{
 			Day:       day,
+			Date:      date,
 			Breakfast: breakfast[i],
 			Snack1:    snack1[i],
 			Lunch:     lunch[i],

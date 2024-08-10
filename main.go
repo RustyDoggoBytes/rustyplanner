@@ -31,10 +31,12 @@ func getFileSystem() http.FileSystem {
 }
 
 type PageData struct {
-	WeekStart time.Time
-	WeekEnd   time.Time
-	Meals     []MealPlan
-	FormData  map[string][]string
+	WeekStart    time.Time
+	WeekEnd      time.Time
+	PreviousWeek time.Time
+	NextWeek     time.Time
+	Meals        []MealPlan
+	FormData     map[string][]string
 }
 
 type MealPlan struct {
@@ -48,6 +50,14 @@ type MealPlan struct {
 }
 
 var userID int64 = 1
+
+func FormatDate(date time.Time) string {
+	return date.Format("2006-01-02")
+}
+
+func FormatMonthDay(date time.Time) string {
+	return date.Format("01-02")
+}
 
 func main() {
 	ctx := context.Background()
@@ -70,14 +80,33 @@ func main() {
 		http.StripPrefix("/static/", http.FileServer(getFileSystem())).ServeHTTP(w, r)
 	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		monday := getMondayOfCurrentWeek(time.Now())
-		meals, _ := repository.GetMealPlanByDate(userID, monday)
+		date := time.Now()
+
+		startDay := r.URL.Query().Get("start-date")
+		if startDay != "" {
+			date, err = time.Parse("2006-01-02", startDay)
+			if err != nil {
+				slog.Error("invalid date", "date", startDay)
+			}
+		}
+
+		monday := getMondayOfCurrentWeek(date)
+
+		slog.Info("received", "date", startDay, "monday", monday)
+		sunday := monday.AddDate(0, 0, 6)
+		meals, err := repository.GetMealPlanByDate(userID, monday, sunday)
+		if err != nil {
+			slog.Error("failed to retrieve meals", "start-date", monday, "end-date", monday, "error", err)
+		}
 
 		component := Index(PageData{
-			WeekStart: monday,
-			WeekEnd:   monday.AddDate(0, 0, 6),
-			Meals:     meals,
+			WeekStart:    monday,
+			WeekEnd:      sunday,
+			PreviousWeek: monday.AddDate(0, 0, -7),
+			NextWeek:     monday.AddDate(0, 0, 7),
+			Meals:        meals,
 		})
+
 		component.Render(r.Context(), w)
 	})
 
@@ -87,12 +116,12 @@ func main() {
 			slog.Error("failed to read meals form", err)
 		}
 		meals := processWeeklyMealFromForm(r.Form)
-		err = repository.UpdateMealsForDate(userID, time.Now(), meals)
+		err = repository.UpdateMealsForDate(userID, meals)
 		if err != nil {
 			slog.Error("failed to update meals", err)
 		}
 
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, fmt.Sprintf("/?start-date=%s", FormatDate(meals[0].Date)), http.StatusSeeOther)
 	})
 	address := fmt.Sprintf("%s:8080", host)
 	slog.Info("running server", "address", address)

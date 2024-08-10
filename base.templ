@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 templ Layout() {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -27,15 +29,16 @@ templ Index(pageData PageData) {
 			<article>
 				<header>
 					<nav>
-						<a href="/meal-plan/previous" role="button">Previous</a>
+						<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.PreviousWeek))) } role="button">Previous</a>
 						<h2>{ pageData.WeekStart.Format("01/02") } - { pageData.WeekEnd.Format("01/02") }</h2>
-						<a href="/meal-plan/next" role="button">Next</a>
+						<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.NextWeek))) } role="button">Next</a>
 					</nav>
 				</header>
 				<form method="post" action="/meal-plan">
 					for _, mealPlan := range pageData.Meals {
 						<h4>{ mealPlan.Day }</h4>
 						<span>{ mealPlan.Date.Format("01/02") }</span>
+						<input type="hidden" name="date" value={ FormatDate(mealPlan.Date) }/>
 						<fieldset class="grid">
 							<label>
 								Breakfast
