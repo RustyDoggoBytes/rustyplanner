@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-var (
-	EmptyMeals []MealPlan = make([]MealPlan, len(days))
-)
-
 type Repository struct {
 	db      *sql.DB
 	ctx     context.Context
@@ -19,9 +15,6 @@ type Repository struct {
 }
 
 func NewRepository(ctx context.Context, db *sql.DB) (*Repository, error) {
-	for i, day := range days {
-		EmptyMeals[i] = MealPlan{Day: day}
-	}
 
 	if _, err := db.ExecContext(ctx, ddl); err != nil {
 		return nil, err
@@ -36,22 +29,26 @@ func NewRepository(ctx context.Context, db *sql.DB) (*Repository, error) {
 func (r *Repository) GetMealPlanByDate(userID int64, date time.Time) ([]MealPlan, error) {
 	monday := getMondayOfCurrentWeek(date)
 	params := sqlc.ListMealsParams{
-		userID,
-		monday,
-		monday.AddDate(0, 0, 7),
+		UserID:   userID,
+		StartDay: monday,
+		EndDay:   monday.AddDate(0, 0, 7),
 	}
 	dbMeals, err := r.queries.ListMeals(r.ctx, params)
 	if err != nil {
 		return nil, err
 	}
 	if len(dbMeals) == 0 {
-		return EmptyMeals, nil
+		var emptyMeals = make([]MealPlan, len(days))
+		for i, day := range days {
+			emptyMeals[i] = MealPlan{Day: day, Date: monday.AddDate(0, 0, 1)}
+		}
 	}
 
 	meals := make([]MealPlan, 7)
 	for i, meal := range dbMeals {
 		meals[i] = MealPlan{
 			Day:       days[i],
+			Date:      monday.AddDate(0, 0, i),
 			Breakfast: meal.Breakfast,
 			Snack1:    meal.Snack1,
 			Snack2:    meal.Snack2,

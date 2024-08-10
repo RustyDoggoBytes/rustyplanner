@@ -20,7 +20,7 @@ templ Layout() {
 	</html>
 }
 
-templ Index(weekMealPlan []MealPlan) {
+templ Index(pageData PageData) {
 	@Layout() {
 		<header><h2>Rusty Planner</h2></header>
 		<main>
@@ -28,12 +28,14 @@ templ Index(weekMealPlan []MealPlan) {
 				<header>
 					<nav>
 						<a href="/meal-plan/previous" role="button">Previous</a>
+						<h2>{ pageData.WeekStart.Format("01/02") } - { pageData.WeekEnd.Format("01/02") }</h2>
 						<a href="/meal-plan/next" role="button">Next</a>
 					</nav>
 				</header>
 				<form method="post" action="/meal-plan">
-					for _, mealPlan := range weekMealPlan {
+					for _, mealPlan := range pageData.Meals {
 						<h4>{ mealPlan.Day }</h4>
+						<span>{ mealPlan.Date.Format("01/02") }</span>
 						<fieldset class="grid">
 							<label>
 								Breakfast

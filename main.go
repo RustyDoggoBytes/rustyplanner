@@ -31,11 +31,15 @@ func getFileSystem() http.FileSystem {
 }
 
 type PageData struct {
-	FormData map[string][]string
+	WeekStart time.Time
+	WeekEnd   time.Time
+	Meals     []MealPlan
+	FormData  map[string][]string
 }
 
 type MealPlan struct {
 	Day       string
+	Date      time.Time
 	Breakfast string
 	Snack1    string
 	Lunch     string
@@ -66,9 +70,14 @@ func main() {
 		http.StripPrefix("/static/", http.FileServer(getFileSystem())).ServeHTTP(w, r)
 	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		meals, _ := repository.GetMealPlanByDate(userID, time.Now())
+		monday := getMondayOfCurrentWeek(time.Now())
+		meals, _ := repository.GetMealPlanByDate(userID, monday)
 
-		component := Index(meals)
+		component := Index(PageData{
+			WeekStart: monday,
+			WeekEnd:   monday.AddDate(0, 0, 6),
+			Meals:     meals,
+		})
 		component.Render(r.Context(), w)
 	})
 
