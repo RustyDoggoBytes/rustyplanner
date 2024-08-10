@@ -1,31 +1,66 @@
 package main
 
 templ Layout() {
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport"
-content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
-<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-<title>Rusty Planner</title>
-<script src="/static/js/htmx.min.js"></script>
-<link rel="stylesheet" href="/static/css/pico.min.css" />
-</head>
-<body>
-		{ children... }
-</body>
-</html>
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta
+				name="viewport"
+				content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+			/>
+			<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+			<title>Rusty Planner</title>
+			<script src="/static/js/htmx.min.js"></script>
+			<link rel="stylesheet" href="/static/css/pico.min.css"/>
+		</head>
+		<body class="container-fluid" hx-boost="true">
+			{ children... }
+		</body>
+	</html>
 }
 
-templ Index() {
-    @Layout() {
-    <header>Rusty Planner</header>
-    <main>
-    <article>
-    Body goes here
-    </article>
-    </main>
-    <footer>Rusty Doggo Bytes &copy; 2024</footer>
-    }
+templ Index(weekMealPlan []MealPlan) {
+	@Layout() {
+		<header><h2>Rusty Planner</h2></header>
+		<main>
+			<article>
+				<header>
+					<nav>
+						<a href="/meal-plan/previous" role="button">Previous</a>
+						<a href="/meal-plan/next" role="button">Next</a>
+					</nav>
+				</header>
+				<form method="post" action="/meal-plan">
+					for _, mealPlan := range weekMealPlan {
+						<h4>{ mealPlan.Day }</h4>
+						<fieldset class="grid">
+							<label>
+								Breakfast
+								<input type="text" name="breakfast" value={ mealPlan.Breakfast }/>
+							</label>
+							<label>
+								Snack
+								<input type="text" name="snack-1" value={ mealPlan.Snack1 }/>
+							</label>
+							<label>
+								Lunch
+								<input type="text" name="lunch" value={ mealPlan.Lunch }/>
+							</label>
+							<label>
+								Snack
+								<input type="text" name="snack-2" value={ mealPlan.Snack2 }/>
+							</label>
+							<label>
+								Dinner
+								<input type="text" name="dinner" value={ mealPlan.Dinner }/>
+							</label>
+						</fieldset>
+					}
+					<button>Save</button>
+				</form>
+			</article>
+		</main>
+		<footer style="display: flex; justify-content: center">Rusty Doggo Bytes &copy; 2024</footer>
+	}
 }

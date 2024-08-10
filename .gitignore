@@ -23,3 +23,5 @@ go.work.sum
 
 .idea/
 tmp/
+data/*
+.DS_Store
