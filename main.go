@@ -10,6 +10,8 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"rustydoggobytes/planner/db"
+	"strconv"
 	"time"
 )
 
@@ -34,7 +36,7 @@ type PageData struct {
 	WeekEnd      time.Time
 	PreviousWeek time.Time
 	NextWeek     time.Time
-	Meals        []MealPlan
+	Meals        []db.MealPlan
 	FormData     map[string][]string
 }
 
@@ -52,11 +54,11 @@ func main() {
 	ctx := context.Background()
 	host := GetEnv("HOST", "localhost")
 
-	db, err := sql.Open("sqlite3", "data/planner.db")
+	sqlite3, err := sql.Open("sqlite3", "data/planner.models")
 	if err != nil {
 		log.Fatal(err)
 	}
-	repository, err := NewRepository(ctx, db)
+	repository, err := db.NewRepository(ctx, sqlite3, ddl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -107,7 +109,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		meal := MealPlan{
+		meal := db.MealPlan{
 			Date:      date,
 			Breakfast: r.FormValue("breakfast"),
 			Snack1:    r.FormValue("snack1"),
@@ -118,6 +120,48 @@ func main() {
 
 		err = repository.UpdateMealPlan(userID, meal)
 		component := MealPlanCardForm(meal, err == nil, err)
+		component.Render(r.Context(), w)
+	})
+
+	groceries := []db.GroceryItem{}
+	groceries = append(groceries, db.GroceryItem{ID: int64(len(groceries)), Name: "banana"})
+	groceries = append(groceries, db.GroceryItem{ID: int64(len(groceries)), Name: "rice"})
+	groceries = append(groceries, db.GroceryItem{ID: int64(len(groceries)), Name: "potatoes", Completed: true})
+
+	mux.HandleFunc("GET /groceries", func(w http.ResponseWriter, r *http.Request) {
+		component := GroceryList(groceries)
+		component.Render(r.Context(), w)
+	})
+
+	mux.HandleFunc("POST /groceries", func(w http.ResponseWriter, r *http.Request) {
+		err := r.ParseForm()
+		if err != nil {
+			slog.Error("failed to read groceries form", err)
+		}
+
+		item := db.GroceryItem{ID: int64(len(groceries)), Name: r.FormValue("name")}
+		groceries = append(groceries, item)
+
+		component := GroceryListItem(item)
+		component.Render(r.Context(), w)
+	})
+
+	mux.HandleFunc("DELETE /groceries/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
+		if err != nil {
+			slog.Error("failed to parse id", "id", id)
+		}
+		groceries = append(groceries[:id], groceries[id+1:]...)
+	})
+
+	mux.HandleFunc("PUT /groceries/{id}/toggle", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+		if err != nil {
+			slog.Error("failed to parse id", "id", id)
+		}
+
+		item := groceries[id]
+		component := GroceryListItem(item)
 		component.Render(r.Context(), w)
 	})
 

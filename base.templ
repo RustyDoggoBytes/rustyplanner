@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"rustydoggobytes/planner/db"
+)
 
 templ Layout() {
 	<!DOCTYPE html>
@@ -23,18 +26,6 @@ templ Layout() {
 						<div class="navbar-brand">
 							<h2 class="navbar-item">Rusty Planner</h2>
 						</div>
-						<div class="navbar-menu">
-							<div class="navbar-start"></div>
-						</div>
-						<div class="navbar-end">
-							<div class="navbar-item">
-								<div class="buttons">
-									<a class="button is-light" hx-post="/signout">
-										Logout
-									</a>
-								</div>
-							</div>
-						</div>
 					</nav>
 				</header>
 				<main>
@@ -55,7 +46,7 @@ templ mealInput(label string, inputName string, inputValue string) {
 	</div>
 }
 
-templ MealPlanCardForm(mealPlan MealPlan, success bool, err error) {
+templ MealPlanCardForm(mealPlan db.MealPlan, success bool, err error) {
 	<form hx-post={ string(templ.URL(fmt.Sprintf("/meal-plan/%s", FormatDate(mealPlan.Date)))) } hx-target="this" hx-swap="outerHTML">
 		<p class="title is-4">
 			{ mealPlan.Date.Weekday().String() }
@@ -101,5 +92,66 @@ templ Index(pageData PageData) {
 				</div>
 			</div>
 		}
+	}
+}
+
+templ GroceryListItem(item db.GroceryItem) {
+	<li class="box">
+		<div class="level is-mobile">
+			<div class="level-left">
+				<div class="level-item">
+					if !item.Completed {
+						<span>{ item.Name }</span>
+					} else {
+						<s>{ item.Name }</s>
+					}
+				</div>
+			</div>
+			<div class="level-right">
+				<div class="level-item">
+					<button
+						class="button is-small is-primary"
+						hx-put={ string(templ.URL(fmt.Sprintf("/groceries/%d/toggle", item.ID))) }
+						hx-target="closest li"
+						hx-swap="outerHTML swap:500ms"
+					>Complete</button>
+				</div>
+				<div class="level-item">
+					<button
+						class="button is-small is-danger delete-btn"
+						hx-delete={ string(templ.URL(fmt.Sprintf("/groceries/%d", item.ID))) }
+						hx-target="closest li"
+						hx-swap="outerHTML swap:100ms"
+					>Delete</button>
+				</div>
+			</div>
+		</div>
+	</li>
+}
+
+templ GroceryList(groceries []db.GroceryItem) {
+	@Layout() {
+		<section class="section">
+			<div class="container">
+				<h1 class="title">Groceries</h1>
+				<form hx-post="/groceries" hx-target="#todo-list" hx-swap="beforeend">
+					<div class="field has-addons">
+						<div class="control is-expanded">
+							<input class="input" type="text" name="name" placeholder="Add a new item"/>
+						</div>
+						<div class="control">
+							<button class="button is-primary" hx-post="/groceries">Add</button>
+						</div>
+					</div>
+				</form>
+				<div class="mt-4">
+					<ul id="todo-list">
+						for _, item := range groceries {
+							@GroceryListItem(item)
+						}
+					</ul>
+				</div>
+			</div>
+		</section>
 	}
 }

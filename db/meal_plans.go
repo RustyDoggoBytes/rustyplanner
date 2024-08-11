@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"context"
@@ -22,8 +22,8 @@ type Repository struct {
 	queries *sqlc.Queries
 }
 
-func NewRepository(ctx context.Context, db *sql.DB) (*Repository, error) {
-	if _, err := db.ExecContext(ctx, ddl); err != nil {
+func NewRepository(ctx context.Context, db *sql.DB, schema string) (*Repository, error) {
+	if _, err := db.ExecContext(ctx, schema); err != nil {
 		return nil, err
 	}
 
