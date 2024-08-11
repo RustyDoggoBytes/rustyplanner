@@ -11,7 +11,6 @@ import (
 	"log/slog"
 	"net/http"
 	"rustydoggobytes/planner/db"
-	"strconv"
 	"time"
 )
 
@@ -54,7 +53,7 @@ func main() {
 	ctx := context.Background()
 	host := GetEnv("HOST", "localhost")
 
-	sqlite3, err := sql.Open("sqlite3", "data/planner.models")
+	sqlite3, err := sql.Open("sqlite3", "data/planner.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -123,13 +122,13 @@ func main() {
 		component.Render(r.Context(), w)
 	})
 
-	groceries := []db.GroceryItem{}
-	groceries = append(groceries, db.GroceryItem{ID: int64(len(groceries)), Name: "banana"})
-	groceries = append(groceries, db.GroceryItem{ID: int64(len(groceries)), Name: "rice"})
-	groceries = append(groceries, db.GroceryItem{ID: int64(len(groceries)), Name: "potatoes", Completed: true})
-
 	mux.HandleFunc("GET /groceries", func(w http.ResponseWriter, r *http.Request) {
-		component := GroceryList(groceries)
+		items, err := repository.ListGroceryItems(userID)
+		if err != nil {
+			slog.Error("failed to list groceries", "user_id", userID)
+		}
+
+		component := GroceryList(items)
 		component.Render(r.Context(), w)
 	})
 
@@ -138,30 +137,31 @@ func main() {
 		if err != nil {
 			slog.Error("failed to read groceries form", err)
 		}
+		item, err := repository.CreateGroceryItem(userID, r.FormValue("name"))
+		if err != nil {
+			slog.Error("failed to create grocery", err)
+		}
 
-		item := db.GroceryItem{ID: int64(len(groceries)), Name: r.FormValue("name")}
-		groceries = append(groceries, item)
-
-		component := GroceryListItem(item)
+		component := GroceryListItem(*item)
 		component.Render(r.Context(), w)
 	})
 
 	mux.HandleFunc("DELETE /groceries/{id}", func(w http.ResponseWriter, r *http.Request) {
-		id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
+		id := r.PathValue("id")
+		err := repository.DeleteGroceryItem(userID, id)
 		if err != nil {
-			slog.Error("failed to parse id", "id", id)
+			slog.Error("failed to delete item", "id", id, err)
 		}
-		groceries = append(groceries[:id], groceries[id+1:]...)
 	})
 
 	mux.HandleFunc("PUT /groceries/{id}/toggle", func(w http.ResponseWriter, r *http.Request) {
-		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+		id := r.PathValue("id")
+		item, err := repository.ToggleGroceryItem(userID, id)
 		if err != nil {
-			slog.Error("failed to parse id", "id", id)
+			slog.Error("failed to toggle item", "id", id, err)
 		}
 
-		item := groceries[id]
-		component := GroceryListItem(item)
+		component := GroceryListItem(*item)
 		component.Render(r.Context(), w)
 	})
 

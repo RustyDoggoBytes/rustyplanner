@@ -10,10 +10,62 @@ import (
 	"time"
 )
 
+const createGroceryItem = `-- name: CreateGroceryItem :one
+INSERT INTO groceries
+    (user_id, name, completed)
+VALUES (?, ?, ?)
+RETURNING id, user_id, name, completed, last_updated
+`
+
+type CreateGroceryItemParams struct {
+	UserID    int64
+	Name      string
+	Completed bool
+}
+
+func (q *Queries) CreateGroceryItem(ctx context.Context, arg CreateGroceryItemParams) (Grocery, error) {
+	row := q.db.QueryRowContext(ctx, createGroceryItem, arg.UserID, arg.Name, arg.Completed)
+	var i Grocery
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Completed,
+		&i.LastUpdated,
+	)
+	return i, err
+}
+
+const deleteGroceryItem = `-- name: DeleteGroceryItem :one
+DELETE
+FROM groceries
+WHERE user_id = ?
+  AND id = ?
+RETURNING id, user_id, name, completed, last_updated
+`
+
+type DeleteGroceryItemParams struct {
+	UserID int64
+	ID     int64
+}
+
+func (q *Queries) DeleteGroceryItem(ctx context.Context, arg DeleteGroceryItemParams) (Grocery, error) {
+	row := q.db.QueryRowContext(ctx, deleteGroceryItem, arg.UserID, arg.ID)
+	var i Grocery
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Completed,
+		&i.LastUpdated,
+	)
+	return i, err
+}
+
 const getMeal = `-- name: GetMeal :one
 SELECT user_id, day, breakfast, snack1, lunch, snack2, dinner
-from meals
-where day = ?
+FROM meals
+WHERE day = ?
   AND user_id = ?
 `
 
@@ -35,6 +87,42 @@ func (q *Queries) GetMeal(ctx context.Context, arg GetMealParams) (Meal, error) 
 		&i.Dinner,
 	)
 	return i, err
+}
+
+const listGroceries = `-- name: ListGroceries :many
+SELECT id, user_id, name, completed, last_updated
+FROM groceries
+WHERE user_id = ?
+ORDER BY id
+`
+
+func (q *Queries) ListGroceries(ctx context.Context, userID int64) ([]Grocery, error) {
+	rows, err := q.db.QueryContext(ctx, listGroceries, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Grocery
+	for rows.Next() {
+		var i Grocery
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.Completed,
+			&i.LastUpdated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listMeals = `-- name: ListMeals :many
@@ -83,9 +171,36 @@ func (q *Queries) ListMeals(ctx context.Context, arg ListMealsParams) ([]Meal, e
 	return items, nil
 }
 
+const toggleGroceryItem = `-- name: ToggleGroceryItem :one
+UPDATE groceries
+SET completed = NOT completed
+WHERE user_id = ?
+  and id = ?
+RETURNING id, user_id, name, completed, last_updated
+`
+
+type ToggleGroceryItemParams struct {
+	UserID int64
+	ID     int64
+}
+
+func (q *Queries) ToggleGroceryItem(ctx context.Context, arg ToggleGroceryItemParams) (Grocery, error) {
+	row := q.db.QueryRowContext(ctx, toggleGroceryItem, arg.UserID, arg.ID)
+	var i Grocery
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Completed,
+		&i.LastUpdated,
+	)
+	return i, err
+}
+
 const updateMeals = `-- name: UpdateMeals :one
 INSERT OR
-REPLACE INTO meals
+REPLACE
+INTO meals
     (breakfast, snack1, lunch, snack2, dinner, day, user_id)
 VALUES (?, ?, ?, ?, ?, ?, ?)
 RETURNING user_id, day, breakfast, snack1, lunch, snack2, dinner

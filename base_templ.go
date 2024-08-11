@@ -493,7 +493,7 @@ func GroceryList(groceries []db.GroceryItem) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"section\"><div class=\"container\"><h1 class=\"title\">Groceries</h1><form hx-post=\"/groceries\" hx-target=\"#todo-list\" hx-swap=\"beforeend\"><div class=\"field has-addons\"><div class=\"control is-expanded\"><input class=\"input\" type=\"text\" name=\"name\" placeholder=\"Add a new item\"></div><div class=\"control\"><button class=\"button is-primary\" hx-post=\"/groceries\">Add</button></div></div></form><div class=\"mt-4\"><ul id=\"todo-list\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"section\"><div class=\"container\"><h1 class=\"title\">Groceries</h1><form hx-post=\"/groceries\" hx-target=\"#todo-list\" hx-swap=\"beforeend\"><div class=\"field has-addons\"><div class=\"control is-expanded\"><input class=\"input\" type=\"text\" name=\"name\" id=\"grocery-input\" placeholder=\"Add a new item\"></div><div class=\"control\"><button class=\"button is-primary\" hx-post=\"/groceries\" hx-on::after-request=\"clearAndFocus(event)\">Add</button></div></div></form><div class=\"mt-4\"><ul id=\"todo-list\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -503,7 +503,7 @@ func GroceryList(groceries []db.GroceryItem) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</ul></div></div></section>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</ul></div></div></section><script type=\"text/javascript\">\n            const input = document.getElementById('grocery-input');\n            document.addEventListener('DOMContentLoaded', function() {\n                input.focus();\n            });\n            function clearAndFocus(event) {\n                if (event.detail.successful) {\n                  input.value = '';\n                  input.focus();\n                }\n            }\n        </script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

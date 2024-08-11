@@ -137,10 +137,10 @@ templ GroceryList(groceries []db.GroceryItem) {
 				<form hx-post="/groceries" hx-target="#todo-list" hx-swap="beforeend">
 					<div class="field has-addons">
 						<div class="control is-expanded">
-							<input class="input" type="text" name="name" placeholder="Add a new item"/>
+							<input class="input" type="text" name="name" id="grocery-input" placeholder="Add a new item"/>
 						</div>
 						<div class="control">
-							<button class="button is-primary" hx-post="/groceries">Add</button>
+							<button class="button is-primary" hx-post="/groceries" hx-on::after-request="clearAndFocus(event)">Add</button>
 						</div>
 					</div>
 				</form>
@@ -153,5 +153,17 @@ templ GroceryList(groceries []db.GroceryItem) {
 				</div>
 			</div>
 		</section>
+		<script type="text/javascript">
+            const input = document.getElementById('grocery-input');
+            document.addEventListener('DOMContentLoaded', function() {
+                input.focus();
+            });
+            function clearAndFocus(event) {
+                if (event.detail.successful) {
+                  input.value = '';
+                  input.focus();
+                }
+            }
+        </script>
 	}
 }

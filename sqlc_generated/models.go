@@ -8,6 +8,14 @@ import (
 	"time"
 )
 
+type Grocery struct {
+	ID          int64
+	UserID      int64
+	Name        string
+	Completed   bool
+	LastUpdated time.Time
+}
+
 type Meal struct {
 	UserID    int64
 	Day       time.Time
