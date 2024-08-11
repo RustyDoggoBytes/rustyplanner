@@ -2,6 +2,7 @@ package db
 
 import (
 	sqlc "rustydoggobytes/planner/sqlc_generated"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -19,12 +20,20 @@ func (r *Repository) ListGroceryItems(userID int64) ([]GroceryItem, error) {
 		return nil, err
 	}
 
-	groceriesList := make([]GroceryItem, len(dbGroceries))
+	groceries := make([]GroceryItem, len(dbGroceries))
 	for i, grocery := range dbGroceries {
-		groceriesList[i] = *mapToGroceryItem(grocery)
+		groceries[i] = *mapToGroceryItem(grocery)
 	}
 
-	return groceriesList, nil
+	sort.Slice(groceries, func(i, j int) bool {
+		if groceries[i].Completed != groceries[j].Completed {
+			return !groceries[i].Completed
+		}
+
+		return groceries[i].LastUpdated.After(groceries[j].LastUpdated)
+	})
+
+	return groceries, nil
 }
 
 func (r *Repository) CreateGroceryItem(userID int64, name string) (*GroceryItem, error) {

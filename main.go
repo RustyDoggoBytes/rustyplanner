@@ -67,6 +67,7 @@ func main() {
 	mux.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/static/", http.FileServer(getFileSystem())).ServeHTTP(w, r)
 	})
+
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		date := time.Now()
 
@@ -79,8 +80,6 @@ func main() {
 		}
 
 		monday := getMondayOfCurrentWeek(date)
-
-		slog.Info("received", "date", startDay, "monday", monday)
 		sunday := monday.AddDate(0, 0, 6)
 		meals, err := repository.GetMealPlanByDate(userID, monday, sunday)
 		if err != nil {
@@ -168,6 +167,11 @@ func main() {
 	address := fmt.Sprintf("%s:8080", host)
 	slog.Info("running server", "address", address)
 
-	protectedMux := basicAuthMiddleware(mux, GetEnv("AUTH_USER", "rusty"), GetEnv("AUTH_PASSWORD", "doggo"))
+	protectedMux := basicAuthMiddleware(
+		mux,
+		GetEnv("AUTH_USER", "rusty"),
+		GetEnv("AUTH_PASSWORD", "doggo"),
+	)
+
 	log.Fatal(http.ListenAndServe(address, protectedMux))
 }
