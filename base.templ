@@ -7,7 +7,7 @@ import (
 
 templ Layout() {
 	<!DOCTYPE html>
-	<html lang="en">
+	<html lang="en" class="has-navbar-fixed-bottom">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta
@@ -22,9 +22,27 @@ templ Layout() {
 		<body hx-boost="true">
 			<div class="container is-fluid">
 				<header>
-					<nav class="navbar" role="navigation" aria-label="main navigation">
+					<nav class="navbar is-fixed-bottom-touch" role="navigation" aria-label="main navigation">
 						<div class="navbar-brand">
-							<h2 class="navbar-item">Rusty Planner</h2>
+							<div class="navbar-item">
+								RP
+							</div>
+							<a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+								<span aria-hidden="true"></span>
+								<span aria-hidden="true"></span>
+								<span aria-hidden="true"></span>
+								<span aria-hidden="true"></span>
+							</a>
+						</div>
+						<div class="navbar-menu" id="navbarBasicExample">
+							<div class="navbar-end">
+								<a class="navbar-item" href="/groceries">
+									Groceries
+								</a>
+								<a class="navbar-item" href="/">
+									Meal Plans
+								</a>
+							</div>
 						</div>
 					</nav>
 				</header>
@@ -33,6 +51,24 @@ templ Layout() {
 				</main>
 				<footer class="footer has-text-centered">Rusty Doggo Bytes &copy; 2024</footer>
 			</div>
+			<script>
+			  // Get all "navbar-burger" elements
+              const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+              // Add a click event on each of them
+              $navbarBurgers.forEach( el => {
+                el.addEventListener('click', () => {
+
+                  // Get the target from the "data-target" attribute
+                  const target = el.dataset.target;
+                  const $target = document.getElementById(target);
+
+                  // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                  el.classList.toggle('is-active');
+                  $target.classList.toggle('is-active');
+
+                });
+              });</script>
 		</body>
 	</html>
 }
@@ -74,24 +110,30 @@ templ MealPlanCardForm(mealPlan db.MealPlan, success bool, err error) {
 
 templ Index(pageData PageData) {
 	@Layout() {
-		<div class=" fixed-grid has-4-cols">
-			<div class="grid has-text-centered">
-				<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.PreviousWeek))) } class="cell button">Previous</a>
-				<p class="cell is-col-span-2 title is-5">
-					Week
-					<br/>
-					{ FormatMonthDay(pageData.WeekStart) } / { FormatMonthDay(pageData.WeekEnd) }
-				</p>
-				<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.NextWeek))) } class="cell button">Next</a>
-			</div>
-		</div>
-		for _, mealPlan := range pageData.Meals {
-			<div class="content">
-				<div class="box">
-					@MealPlanCardForm(mealPlan, false, nil)
+		<section class="section">
+			<div class="container">
+				<h1 class="title">Meal Plan</h1>
+				<div class="level"></div>
+				<div class="fixed-grid has-4-cols">
+					<div class="grid has-text-centered">
+						<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.PreviousWeek))) } class="cell button">Previous</a>
+						<p class="cell is-col-span-2 title is-5">
+							Week
+							<br/>
+							{ FormatMonthDay(pageData.WeekStart) } / { FormatMonthDay(pageData.WeekEnd) }
+						</p>
+						<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.NextWeek))) } class="cell button">Next</a>
+					</div>
 				</div>
+				for _, mealPlan := range pageData.Meals {
+					<div class="content">
+						<div class="box">
+							@MealPlanCardForm(mealPlan, false, nil)
+						</div>
+					</div>
+				}
 			</div>
-		}
+		</section>
 	}
 }
 
@@ -118,11 +160,11 @@ templ GroceryListItem(item db.GroceryItem) {
 				</div>
 				<div class="level-item">
 					<button
-						class="button is-small is-danger delete-btn"
+						class="delete"
 						hx-delete={ string(templ.URL(fmt.Sprintf("/groceries/%d", item.ID))) }
 						hx-target="closest li"
 						hx-swap="outerHTML swap:100ms"
-					>Delete</button>
+					></button>
 				</div>
 			</div>
 		</div>
@@ -154,14 +196,14 @@ templ GroceryList(groceries []db.GroceryItem) {
 			</div>
 		</section>
 		<script type="text/javascript">
-            const input = document.getElementById('grocery-input');
+            const $input = document.getElementById('grocery-input');
             document.addEventListener('DOMContentLoaded', function() {
-                input.focus();
+                $input.focus();
             });
             function clearAndFocus(event) {
                 if (event.detail.successful) {
-                  input.value = '';
-                  input.focus();
+                  $input.value = '';
+                  $input.focus();
                 }
             }
         </script>

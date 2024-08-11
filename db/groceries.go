@@ -13,7 +13,7 @@ type GroceryItem struct {
 	LastUpdated time.Time
 }
 
-func (r Repository) ListGroceryItems(userID int64) ([]GroceryItem, error) {
+func (r *Repository) ListGroceryItems(userID int64) ([]GroceryItem, error) {
 	dbGroceries, err := r.queries.ListGroceries(r.ctx, userID)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (r Repository) ListGroceryItems(userID int64) ([]GroceryItem, error) {
 	return groceriesList, nil
 }
 
-func (r Repository) CreateGroceryItem(userID int64, name string) (*GroceryItem, error) {
+func (r *Repository) CreateGroceryItem(userID int64, name string) (*GroceryItem, error) {
 	params := sqlc.CreateGroceryItemParams{
 		UserID:    userID,
 		Name:      name,
@@ -41,7 +41,7 @@ func (r Repository) CreateGroceryItem(userID int64, name string) (*GroceryItem, 
 	return mapToGroceryItem(groceryItem), nil
 }
 
-func (r Repository) ToggleGroceryItem(userID int64, id string) (*GroceryItem, error) {
+func (r *Repository) ToggleGroceryItem(userID int64, id string) (*GroceryItem, error) {
 	id_int, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (r Repository) ToggleGroceryItem(userID int64, id string) (*GroceryItem, er
 	return mapToGroceryItem(item), nil
 }
 
-func (r Repository) DeleteGroceryItem(userID int64, id string) error {
+func (r *Repository) DeleteGroceryItem(userID int64, id string) error {
 	id_int, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return err
