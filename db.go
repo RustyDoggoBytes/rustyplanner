@@ -3,10 +3,18 @@ package main
 import (
 	"context"
 	"database/sql"
-	"log/slog"
 	sqlc "rustydoggobytes/planner/sqlc_generated"
 	"time"
 )
+
+type MealPlan struct {
+	Date      time.Time
+	Breakfast string
+	Snack1    string
+	Lunch     string
+	Snack2    string
+	Dinner    string
+}
 
 type Repository struct {
 	db      *sql.DB
@@ -23,7 +31,10 @@ func NewRepository(ctx context.Context, db *sql.DB) (*Repository, error) {
 	return &Repository{ctx: ctx, db: db, queries: queries}, nil
 }
 
-func (r *Repository) GetMealPlanByDate(userID int64, startDate time.Time, endDate time.Time) ([]MealPlan, error) {
+func (r *Repository) GetMealPlanByDate(userID int64, startDate, endDate time.Time) ([]MealPlan, error) {
+	startDate = startDate.Truncate(24 * time.Hour)
+	endDate = endDate.Truncate(24 * time.Hour)
+
 	params := sqlc.ListMealsParams{
 		UserID:   userID,
 		StartDay: startDate,
@@ -34,46 +45,43 @@ func (r *Repository) GetMealPlanByDate(userID int64, startDate time.Time, endDat
 		return nil, err
 	}
 
-	if len(dbMeals) == 0 {
-		slog.Info("empty meals", "start", startDate)
-		var emptyMeals = make([]MealPlan, len(days))
-		for i, day := range days {
-			emptyMeals[i] = MealPlan{Day: day, Date: startDate.AddDate(0, 0, i)}
+	var meals []MealPlan
+	for date := startDate; !date.After(endDate); date = date.AddDate(0, 0, 1) {
+		meal := MealPlan{Date: date}
+		for _, dbMeal := range dbMeals {
+			if dbMeal.Day == date {
+				meal = MealPlan{
+					Date:      dbMeal.Day,
+					Breakfast: dbMeal.Breakfast,
+					Snack1:    dbMeal.Snack1,
+					Snack2:    dbMeal.Snack2,
+					Lunch:     dbMeal.Lunch,
+					Dinner:    dbMeal.Dinner,
+				}
+				break
+			}
 		}
-		return emptyMeals, nil
-	}
-
-	meals := make([]MealPlan, 7)
-	for i, meal := range dbMeals {
-		meals[i] = MealPlan{
-			Day:       days[i],
-			Date:      meal.Day,
-			Breakfast: meal.Breakfast,
-			Snack1:    meal.Snack1,
-			Snack2:    meal.Snack2,
-			Lunch:     meal.Lunch,
-			Dinner:    meal.Dinner,
-		}
+		meals = append(meals, meal)
 	}
 
 	return meals, nil
 }
 
-func (r *Repository) UpdateMealsForDate(userID int64, meals []MealPlan) error {
-	for _, meal := range meals {
-		params := sqlc.UpdateMealsParams{
-			UserID:    userID,
-			Day:       meal.Date,
-			Breakfast: meal.Breakfast,
-			Snack1:    meal.Snack1,
-			Snack2:    meal.Snack2,
-			Lunch:     meal.Lunch,
-			Dinner:    meal.Dinner,
-		}
-		_, err := r.queries.UpdateMeals(r.ctx, params)
-		if err != nil {
-			return err
-		}
+func (r *Repository) UpdateMealPlan(userID int64, meal MealPlan) error {
+	date := meal.Date.Truncate(24 * time.Hour)
+
+	params := sqlc.UpdateMealsParams{
+		UserID:    userID,
+		Day:       date,
+		Breakfast: meal.Breakfast,
+		Snack1:    meal.Snack1,
+		Snack2:    meal.Snack2,
+		Lunch:     meal.Lunch,
+		Dinner:    meal.Dinner,
+	}
+	_, err := r.queries.UpdateMeals(r.ctx, params)
+	if err != nil {
+		return err
 	}
 	return nil
 }

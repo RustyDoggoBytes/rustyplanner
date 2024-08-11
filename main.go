@@ -39,16 +39,6 @@ type PageData struct {
 	FormData     map[string][]string
 }
 
-type MealPlan struct {
-	Day       string
-	Date      time.Time
-	Breakfast string
-	Snack1    string
-	Lunch     string
-	Snack2    string
-	Dinner    string
-}
-
 var userID int64 = 1
 
 func FormatDate(date time.Time) string {
@@ -110,19 +100,30 @@ func main() {
 		component.Render(r.Context(), w)
 	})
 
-	mux.HandleFunc("POST /meal-plan", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /meal-plan/{date}", func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
 			slog.Error("failed to read meals form", err)
 		}
-		meals := processWeeklyMealFromForm(r.Form)
-		err = repository.UpdateMealsForDate(userID, meals)
+
+		date, err := time.Parse("2006-01-02", r.PathValue("date"))
 		if err != nil {
-			slog.Error("failed to update meals", err)
+			log.Fatal(err)
+		}
+		meal := MealPlan{
+			Date:      date,
+			Breakfast: r.FormValue("breakfast"),
+			Snack1:    r.FormValue("snack1"),
+			Snack2:    r.FormValue("snack2"),
+			Lunch:     r.FormValue("lunch"),
+			Dinner:    r.FormValue("dinner"),
 		}
 
-		http.Redirect(w, r, fmt.Sprintf("/?start-date=%s", FormatDate(meals[0].Date)), http.StatusSeeOther)
+		err = repository.UpdateMealPlan(userID, meal)
+		component := MealPlanCardForm(meal, err == nil, err)
+		component.Render(r.Context(), w)
 	})
+
 	address := fmt.Sprintf("%s:8080", host)
 	slog.Info("running server", "address", address)
 	log.Fatal(http.ListenAndServe(address, mux))

@@ -14,58 +14,92 @@ templ Layout() {
 			<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
 			<title>Rusty Planner</title>
 			<script src="/static/js/htmx.min.js"></script>
-			<link rel="stylesheet" href="/static/css/pico.min.css"/>
+			<link rel="stylesheet" href="/static/css/bulma.min.css"/>
 		</head>
-		<body class="container-fluid" hx-boost="true">
-			{ children... }
+		<body hx-boost="true">
+			<div class="container is-fluid">
+				<header>
+					<nav class="navbar" role="navigation" aria-label="main navigation">
+						<div class="navbar-brand">
+							<h2 class="navbar-item">Rusty Planner</h2>
+						</div>
+						<div class="navbar-menu">
+							<div class="navbar-start"></div>
+						</div>
+						<div class="navbar-end">
+							<div class="navbar-item">
+								<div class="buttons">
+									<a class="button is-light" hx-post="/signout">
+										Logout
+									</a>
+								</div>
+							</div>
+						</div>
+					</nav>
+				</header>
+				<main>
+					{ children... }
+				</main>
+				<footer class="footer has-text-centered">Rusty Doggo Bytes &copy; 2024</footer>
+			</div>
 		</body>
 	</html>
 }
 
+templ mealInput(label string, inputName string, inputValue string) {
+	<div class="cell field">
+		<label class="label" for={ inputName }>{ label }</label>
+		<div class="control">
+			<input class="input" type="text" name={ inputName } id={ inputName } value={ inputValue }/>
+		</div>
+	</div>
+}
+
+templ MealPlanCardForm(mealPlan MealPlan, success bool, err error) {
+	<form hx-post={ string(templ.URL(fmt.Sprintf("/meal-plan/%s", FormatDate(mealPlan.Date)))) } hx-target="this" hx-swap="outerHTML">
+		<p class="title is-4">
+			{ mealPlan.Date.Weekday().String() }
+		</p>
+		<p class="subtitle is-6">{ FormatMonthDay(mealPlan.Date) }</p>
+		<input type="hidden" name="date" value={ FormatDate(mealPlan.Date) }/>
+		<div class="grid">
+			@mealInput("Breakfast", "breakfast", mealPlan.Breakfast)
+			@mealInput("Snack 1", "snack1", mealPlan.Snack1)
+			@mealInput("Lunch", "lunch", mealPlan.Lunch)
+			@mealInput("Snack 2", "snack2", mealPlan.Snack2)
+			@mealInput("Dinner", "dinner", mealPlan.Dinner)
+			<div class="cell field">
+				<label class="label">&nbsp;</label> <!-- Invisible label -->
+				<button class="button is-primary">Save</button>
+				if success {
+					<p class="help is-success">Saved successfully</p>
+				} else if err != nil {
+					<p class="help is-danger">Failed. { fmt.Sprint(err) }</p>
+				}
+			</div>
+		</div>
+	</form>
+}
+
 templ Index(pageData PageData) {
 	@Layout() {
-		<header><h2>Rusty Planner</h2></header>
-		<main>
-			<article>
-				<header>
-					<nav>
-						<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.PreviousWeek))) } role="button">Previous</a>
-						<h2>{ pageData.WeekStart.Format("01/02") } - { pageData.WeekEnd.Format("01/02") }</h2>
-						<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.NextWeek))) } role="button">Next</a>
-					</nav>
-				</header>
-				<form method="post" action="/meal-plan">
-					for _, mealPlan := range pageData.Meals {
-						<h4>{ mealPlan.Day }</h4>
-						<span>{ mealPlan.Date.Format("01/02") }</span>
-						<input type="hidden" name="date" value={ FormatDate(mealPlan.Date) }/>
-						<fieldset class="grid">
-							<label>
-								Breakfast
-								<input type="text" name="breakfast" value={ mealPlan.Breakfast }/>
-							</label>
-							<label>
-								Snack
-								<input type="text" name="snack-1" value={ mealPlan.Snack1 }/>
-							</label>
-							<label>
-								Lunch
-								<input type="text" name="lunch" value={ mealPlan.Lunch }/>
-							</label>
-							<label>
-								Snack
-								<input type="text" name="snack-2" value={ mealPlan.Snack2 }/>
-							</label>
-							<label>
-								Dinner
-								<input type="text" name="dinner" value={ mealPlan.Dinner }/>
-							</label>
-						</fieldset>
-					}
-					<button>Save</button>
-				</form>
-			</article>
-		</main>
-		<footer style="display: flex; justify-content: center">Rusty Doggo Bytes &copy; 2024</footer>
+		<div class=" fixed-grid has-4-cols">
+			<div class="grid has-text-centered">
+				<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.PreviousWeek))) } class="cell button">Previous</a>
+				<p class="cell is-col-span-2 title is-5">
+					Week
+					<br/>
+					{ FormatMonthDay(pageData.WeekStart) } / { FormatMonthDay(pageData.WeekEnd) }
+				</p>
+				<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.NextWeek))) } class="cell button">Next</a>
+			</div>
+		</div>
+		for _, mealPlan := range pageData.Meals {
+			<div class="content">
+				<div class="box">
+					@MealPlanCardForm(mealPlan, false, nil)
+				</div>
+			</div>
+		}
 	}
 }
