@@ -10,7 +10,6 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -51,10 +50,7 @@ func FormatMonthDay(date time.Time) string {
 
 func main() {
 	ctx := context.Background()
-	host := os.Getenv("HOST")
-	if host == "" {
-		host = "localhost"
-	}
+	host := GetEnv("HOST", "localhost")
 
 	db, err := sql.Open("sqlite3", "data/planner.db")
 	if err != nil {
@@ -66,6 +62,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/static/", http.FileServer(getFileSystem())).ServeHTTP(w, r)
 	})
@@ -126,5 +123,7 @@ func main() {
 
 	address := fmt.Sprintf("%s:8080", host)
 	slog.Info("running server", "address", address)
-	log.Fatal(http.ListenAndServe(address, mux))
+
+	protectedMux := basicAuthMiddleware(mux, GetEnv("AUTH_USER", "rusty"), GetEnv("AUTH_PASSWORD", "doggo"))
+	log.Fatal(http.ListenAndServe(address, protectedMux))
 }
