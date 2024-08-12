@@ -46,9 +46,7 @@ templ Layout() {
 				</nav>
 			</header>
 			<main>
-				<div class="container is-fluid">
-					{ children... }
-				</div>
+				{ children... }
 			</main>
 			<footer class="footer has-text-centered">Rusty Doggo Bytes &copy; 2024</footer>
 			<script>
@@ -168,26 +166,27 @@ templ GroceryListItem(item db.GroceryItem) {
 templ GroceryList(groceries []db.GroceryItem) {
 	@Layout() {
 		<section class="section">
-			<div class="container">
-				<nav class="panel is-black" id="grocery-list">
-					<p class="panel-heading">Groceries</p>
-					<div class="panel-block">
-						<form class="is-fullwidth" hx-post="/groceries" hx-target="#grocery-list" hx-swap="beforeend">
-							<div class="field has-addons">
-								<div class="control is-expanded">
-									<input class="input" type="text" name="name" id="grocery-input" placeholder="Add a new item"/>
-								</div>
-								<div class="control">
-									<button class="button is-primary" hx-post="/groceries" hx-on::after-request="clearAndFocus(event)">Add</button>
-								</div>
+			<nav class="panel is-black">
+				<p class="panel-heading">Groceries</p>
+				<div class="panel-block">
+					<form class="is-fullwidth mr-auto" hx-post="/groceries" hx-target="#grocery-list" hx-swap="afterbegin">
+						<div class="field has-addons">
+							<div class="control is-expanded">
+								<input class="input" type="text" name="name" id="grocery-input" placeholder="Add a new item"/>
 							</div>
-						</form>
-					</div>
+							<div class="control">
+								<button class="button is-primary" hx-post="/groceries" hx-on::after-request="clearAndFocus(event)">Add</button>
+							</div>
+						</div>
+					</form>
+					<a role="button" class="button is-info" href="/groceries">Refresh</a>
+				</div>
+				<div id="grocery-list">
 					for _, item := range groceries {
 						@GroceryListItem(item)
 					}
-				</nav>
-			</div>
+				</div>
+			</nav>
 		</section>
 		<script type="text/javascript">
             const $input = document.getElementById('grocery-input');
