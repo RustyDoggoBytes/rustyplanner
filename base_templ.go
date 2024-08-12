@@ -499,7 +499,7 @@ func GroceryList(groceries []db.GroceryItem) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"section\"><div class=\"container\"><nav class=\"panel\" id=\"grocery-list\"><p class=\"panel-heading\">Groceries</p><div class=\"panel-block\"><form class=\"is-fullwidth\" hx-post=\"/groceries\" hx-target=\"#grocery-list\" hx-swap=\"beforeend\"><div class=\"field has-addons\"><div class=\"control is-expanded\"><input class=\"input\" type=\"text\" name=\"name\" id=\"grocery-input\" placeholder=\"Add a new item\"></div><div class=\"control\"><button class=\"button is-primary\" hx-post=\"/groceries\" hx-on::after-request=\"clearAndFocus(event)\">Add</button></div></div></form></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"section\"><div class=\"container\"><nav class=\"panel is-black\" id=\"grocery-list\"><p class=\"panel-heading\">Groceries</p><div class=\"panel-block\"><form class=\"is-fullwidth\" hx-post=\"/groceries\" hx-target=\"#grocery-list\" hx-swap=\"beforeend\"><div class=\"field has-addons\"><div class=\"control is-expanded\"><input class=\"input\" type=\"text\" name=\"name\" id=\"grocery-input\" placeholder=\"Add a new item\"></div><div class=\"control\"><button class=\"button is-primary\" hx-post=\"/groceries\" hx-on::after-request=\"clearAndFocus(event)\">Add</button></div></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
