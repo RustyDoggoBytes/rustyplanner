@@ -31,7 +31,7 @@ func Layout() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\" class=\"has-navbar-fixed-bottom\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\"><meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\"><title>Rusty Planner</title><script src=\"/static/js/htmx.min.js\"></script><link rel=\"stylesheet\" href=\"/static/css/bulma.min.css\"></head><body hx-boost=\"true\"><div class=\"container is-fluid\"><header><nav class=\"navbar is-fixed-bottom-touch\" role=\"navigation\" aria-label=\"main navigation\"><div class=\"navbar-brand\"><div class=\"navbar-item\">RP</div><a role=\"button\" class=\"navbar-burger\" aria-label=\"menu\" aria-expanded=\"false\" data-target=\"navbarBasicExample\"><span aria-hidden=\"true\"></span> <span aria-hidden=\"true\"></span> <span aria-hidden=\"true\"></span> <span aria-hidden=\"true\"></span></a></div><div class=\"navbar-menu\" id=\"navbarBasicExample\"><div class=\"navbar-end\"><a class=\"navbar-item\" href=\"/groceries\">Groceries</a> <a class=\"navbar-item\" href=\"/\">Meal Plans</a></div></div></nav></header><main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\" class=\"has-navbar-fixed-bottom\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\"><meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\"><title>Rusty Planner</title><script src=\"/static/js/htmx.min.js\"></script><link rel=\"stylesheet\" href=\"/static/css/bulma.min.css\"></head><body hx-boost=\"true\"><header><nav class=\"navbar is-dark is-fixed-bottom-touch\" role=\"navigation\" aria-label=\"main navigation\"><div class=\"navbar-brand\"><div class=\"navbar-item\">RP</div><a role=\"button\" class=\"navbar-burger\" aria-label=\"menu\" aria-expanded=\"false\" data-target=\"navbarBasicExample\"><span aria-hidden=\"true\"></span> <span aria-hidden=\"true\"></span> <span aria-hidden=\"true\"></span> <span aria-hidden=\"true\"></span></a></div><div class=\"navbar-menu\" id=\"navbarBasicExample\"><div class=\"navbar-end\"><a class=\"navbar-item\" href=\"/groceries\">Groceries</a> <a class=\"navbar-item\" href=\"/\">Meal Plans</a></div></div></nav></header><main><div class=\"container is-fluid\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -39,7 +39,7 @@ func Layout() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main><footer class=\"footer has-text-centered\">Rusty Doggo Bytes &copy; 2024</footer></div><script>\n\t\t\t  // Get all \"navbar-burger\" elements\n              const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);\n\n              // Add a click event on each of them\n              $navbarBurgers.forEach( el => {\n                el.addEventListener('click', () => {\n\n                  // Get the target from the \"data-target\" attribute\n                  const target = el.dataset.target;\n                  const $target = document.getElementById(target);\n\n                  // Toggle the \"is-active\" class on both the \"navbar-burger\" and the \"navbar-menu\"\n                  el.classList.toggle('is-active');\n                  $target.classList.toggle('is-active');\n\n                });\n              });</script></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></main><footer class=\"footer has-text-centered\">Rusty Doggo Bytes &copy; 2024</footer><script>\n\t\t\t  // Get all \"navbar-burger\" elements\n              const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);\n\n              // Add a click event on each of them\n              $navbarBurgers.forEach( el => {\n                el.addEventListener('click', () => {\n\n                  // Get the target from the \"data-target\" attribute\n                  const target = el.dataset.target;\n                  const $target = document.getElementById(target);\n\n                  // Toggle the \"is-active\" class on both the \"navbar-burger\" and the \"navbar-menu\"\n                  el.classList.toggle('is-active');\n                  $target.classList.toggle('is-active');\n\n                });\n              });</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -392,25 +392,40 @@ func GroceryListItem(item db.GroceryItem) templ.Component {
 			templ_7745c5c3_Var20 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li class=\"box\"><div class=\"level is-mobile\"><div class=\"level-left\"><div class=\"level-item\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"panel-block\" hx-put=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var21 string
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/groceries/%d/toggle", item.ID))))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `base.templ`, Line: 143, Col: 74}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-swap=\"outerHTML\"><input type=\"checkbox\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if item.Completed {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" checked")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("> <span class=\"mr-auto\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if !item.Completed {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span>")
+			var templ_7745c5c3_Var22 string
+			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `base.templ`, Line: 154, Col: 15}
 			}
-			var templ_7745c5c3_Var21 string
-			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `base.templ`, Line: 146, Col: 23}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -419,12 +434,12 @@ func GroceryListItem(item db.GroceryItem) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var22 string
-			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
+			var templ_7745c5c3_Var23 string
+			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `base.templ`, Line: 148, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `base.templ`, Line: 156, Col: 18}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -433,33 +448,20 @@ func GroceryListItem(item db.GroceryItem) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div class=\"level-right\"><div class=\"level-item\"><button class=\"button is-small is-primary\" hx-put=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var23 string
-		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/groceries/%d/toggle", item.ID))))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `base.templ`, Line: 156, Col: 78}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"closest li\" hx-swap=\"outerHTML swap:500ms\">Complete</button></div><div class=\"level-item\"><button class=\"delete\" hx-delete=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span> <button class=\"delete\" hx-delete=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/groceries/%d", item.ID))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `base.templ`, Line: 164, Col: 74}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `base.templ`, Line: 161, Col: 71}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"closest li\" hx-swap=\"outerHTML swap:100ms\"></button></div></div></div></li>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"closest a\" hx-swap=\"outerHTML swap:100ms\"></button></a>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -497,7 +499,7 @@ func GroceryList(groceries []db.GroceryItem) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"section\"><div class=\"container\"><h1 class=\"title\">Groceries</h1><form hx-post=\"/groceries\" hx-target=\"#todo-list\" hx-swap=\"beforeend\"><div class=\"field has-addons\"><div class=\"control is-expanded\"><input class=\"input\" type=\"text\" name=\"name\" id=\"grocery-input\" placeholder=\"Add a new item\"></div><div class=\"control\"><button class=\"button is-primary\" hx-post=\"/groceries\" hx-on::after-request=\"clearAndFocus(event)\">Add</button></div></div></form><div class=\"mt-4\"><ul id=\"todo-list\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"section\"><div class=\"container\"><nav class=\"panel\" id=\"grocery-list\"><p class=\"panel-heading\">Groceries</p><div class=\"panel-block\"><form class=\"is-fullwidth\" hx-post=\"/groceries\" hx-target=\"#grocery-list\" hx-swap=\"beforeend\"><div class=\"field has-addons\"><div class=\"control is-expanded\"><input class=\"input\" type=\"text\" name=\"name\" id=\"grocery-input\" placeholder=\"Add a new item\"></div><div class=\"control\"><button class=\"button is-primary\" hx-post=\"/groceries\" hx-on::after-request=\"clearAndFocus(event)\">Add</button></div></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -507,7 +509,7 @@ func GroceryList(groceries []db.GroceryItem) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</ul></div></div></section><script type=\"text/javascript\">\n            const $input = document.getElementById('grocery-input');\n            document.addEventListener('DOMContentLoaded', function() {\n                $input.focus();\n            });\n            function clearAndFocus(event) {\n                if (event.detail.successful) {\n                  $input.value = '';\n                  $input.focus();\n                }\n            }\n        </script>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</nav></div></section><script type=\"text/javascript\">\n            const $input = document.getElementById('grocery-input');\n            document.addEventListener('DOMContentLoaded', function() {\n                $input.focus();\n            });\n\n            function clearAndFocus(event) {\n                if (event.detail.successful) {\n                  $input.value = '';\n                  // Delay focus for iOS devices\n                  setTimeout(function() {\n                      $input.focus();\n                      // Scroll to the input if needed\n                      $input.scrollIntoView({behavior: \"smooth\", block: \"center\"});\n                  }, 100);\n                }\n            }\n        </script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

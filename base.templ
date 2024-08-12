@@ -20,37 +20,37 @@ templ Layout() {
 			<link rel="stylesheet" href="/static/css/bulma.min.css"/>
 		</head>
 		<body hx-boost="true">
-			<div class="container is-fluid">
-				<header>
-					<nav class="navbar is-fixed-bottom-touch" role="navigation" aria-label="main navigation">
-						<div class="navbar-brand">
-							<div class="navbar-item">
-								RP
-							</div>
-							<a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-								<span aria-hidden="true"></span>
-								<span aria-hidden="true"></span>
-								<span aria-hidden="true"></span>
-								<span aria-hidden="true"></span>
+			<header>
+				<nav class="navbar is-dark is-fixed-bottom-touch" role="navigation" aria-label="main navigation">
+					<div class="navbar-brand">
+						<div class="navbar-item">
+							RP
+						</div>
+						<a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+							<span aria-hidden="true"></span>
+							<span aria-hidden="true"></span>
+							<span aria-hidden="true"></span>
+							<span aria-hidden="true"></span>
+						</a>
+					</div>
+					<div class="navbar-menu" id="navbarBasicExample">
+						<div class="navbar-end">
+							<a class="navbar-item" href="/groceries">
+								Groceries
+							</a>
+							<a class="navbar-item" href="/">
+								Meal Plans
 							</a>
 						</div>
-						<div class="navbar-menu" id="navbarBasicExample">
-							<div class="navbar-end">
-								<a class="navbar-item" href="/groceries">
-									Groceries
-								</a>
-								<a class="navbar-item" href="/">
-									Meal Plans
-								</a>
-							</div>
-						</div>
-					</nav>
-				</header>
-				<main>
+					</div>
+				</nav>
+			</header>
+			<main>
+				<div class="container is-fluid">
 					{ children... }
-				</main>
-				<footer class="footer has-text-centered">Rusty Doggo Bytes &copy; 2024</footer>
-			</div>
+				</div>
+			</main>
+			<footer class="footer has-text-centered">Rusty Doggo Bytes &copy; 2024</footer>
 			<script>
 			  // Get all "navbar-burger" elements
               const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
@@ -138,61 +138,55 @@ templ Index(pageData PageData) {
 }
 
 templ GroceryListItem(item db.GroceryItem) {
-	<li class="box">
-		<div class="level is-mobile">
-			<div class="level-left">
-				<div class="level-item">
-					if !item.Completed {
-						<span>{ item.Name }</span>
-					} else {
-						<s>{ item.Name }</s>
-					}
-				</div>
-			</div>
-			<div class="level-right">
-				<div class="level-item">
-					<button
-						class="button is-small is-primary"
-						hx-put={ string(templ.URL(fmt.Sprintf("/groceries/%d/toggle", item.ID))) }
-						hx-target="closest li"
-						hx-swap="outerHTML swap:500ms"
-					>Complete</button>
-				</div>
-				<div class="level-item">
-					<button
-						class="delete"
-						hx-delete={ string(templ.URL(fmt.Sprintf("/groceries/%d", item.ID))) }
-						hx-target="closest li"
-						hx-swap="outerHTML swap:100ms"
-					></button>
-				</div>
-			</div>
-		</div>
-	</li>
+	<a
+		class="panel-block"
+		hx-put={ string(templ.URL(fmt.Sprintf("/groceries/%d/toggle", item.ID))) }
+		hx-swap="outerHTML"
+	>
+		<input
+			type="checkbox"
+			if item.Completed {
+				checked
+			}
+		/>
+		<span class="mr-auto">
+			if !item.Completed {
+				{ item.Name }
+			} else {
+				<s>{ item.Name }</s>
+			}
+		</span>
+		<button
+			class="delete"
+			hx-delete={ string(templ.URL(fmt.Sprintf("/groceries/%d", item.ID))) }
+			hx-target="closest a"
+			hx-swap="outerHTML swap:100ms"
+		></button>
+	</a>
 }
 
 templ GroceryList(groceries []db.GroceryItem) {
 	@Layout() {
 		<section class="section">
 			<div class="container">
-				<h1 class="title">Groceries</h1>
-				<form hx-post="/groceries" hx-target="#todo-list" hx-swap="beforeend">
-					<div class="field has-addons">
-						<div class="control is-expanded">
-							<input class="input" type="text" name="name" id="grocery-input" placeholder="Add a new item"/>
-						</div>
-						<div class="control">
-							<button class="button is-primary" hx-post="/groceries" hx-on::after-request="clearAndFocus(event)">Add</button>
-						</div>
+				<nav class="panel" id="grocery-list">
+					<p class="panel-heading">Groceries</p>
+					<div class="panel-block">
+						<form class="is-fullwidth" hx-post="/groceries" hx-target="#grocery-list" hx-swap="beforeend">
+							<div class="field has-addons">
+								<div class="control is-expanded">
+									<input class="input" type="text" name="name" id="grocery-input" placeholder="Add a new item"/>
+								</div>
+								<div class="control">
+									<button class="button is-primary" hx-post="/groceries" hx-on::after-request="clearAndFocus(event)">Add</button>
+								</div>
+							</div>
+						</form>
 					</div>
-				</form>
-				<div class="mt-4">
-					<ul id="todo-list">
-						for _, item := range groceries {
-							@GroceryListItem(item)
-						}
-					</ul>
-				</div>
+					for _, item := range groceries {
+						@GroceryListItem(item)
+					}
+				</nav>
 			</div>
 		</section>
 		<script type="text/javascript">
@@ -200,10 +194,16 @@ templ GroceryList(groceries []db.GroceryItem) {
             document.addEventListener('DOMContentLoaded', function() {
                 $input.focus();
             });
+
             function clearAndFocus(event) {
                 if (event.detail.successful) {
                   $input.value = '';
-                  $input.focus();
+                  // Delay focus for iOS devices
+                  setTimeout(function() {
+                      $input.focus();
+                      // Scroll to the input if needed
+                      $input.scrollIntoView({behavior: "smooth", block: "center"});
+                  }, 100);
                 }
             }
         </script>
