@@ -26,7 +26,14 @@ templ Layout() {
 						<div class="navbar-item">
 							RP
 						</div>
-						<a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+						<a
+							role="button"
+							class="navbar-burger"
+							aria-label="menu"
+							aria-expanded="false"
+							data-target="navbarBasicExample"
+							onclick="toggleNavBurger(this)"
+						>
 							<span aria-hidden="true"></span>
 							<span aria-hidden="true"></span>
 							<span aria-hidden="true"></span>
@@ -50,23 +57,14 @@ templ Layout() {
 			</main>
 			<footer class="footer has-text-centered">Rusty Doggo Bytes &copy; 2024</footer>
 			<script>
-			  // Get all "navbar-burger" elements
-              const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+                function toggleNavBurger(element) {
+                    const target = element.dataset.target;
+                    const $target = document.getElementById(target);
 
-              // Add a click event on each of them
-              $navbarBurgers.forEach( el => {
-                el.addEventListener('click', () => {
-
-                  // Get the target from the "data-target" attribute
-                  const target = el.dataset.target;
-                  const $target = document.getElementById(target);
-
-                  // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-                  el.classList.toggle('is-active');
-                  $target.classList.toggle('is-active');
-
-                });
-              });</script>
+                    element.classList.toggle('is-active');
+                    $target.classList.toggle('is-active');
+                }
+            </script>
 		</body>
 	</html>
 }
@@ -83,9 +81,8 @@ templ mealInput(label string, inputName string, inputValue string) {
 templ MealPlanCardForm(mealPlan db.MealPlan, success bool, err error) {
 	<form hx-post={ string(templ.URL(fmt.Sprintf("/meal-plan/%s", FormatDate(mealPlan.Date)))) } hx-target="this" hx-swap="outerHTML">
 		<p class="title is-4">
-			{ mealPlan.Date.Weekday().String() }
+			{ mealPlan.Date.Weekday().String() } <span class="tag is-dark">{ FormatMonthDay(mealPlan.Date) } </span>
 		</p>
-		<p class="subtitle is-6">{ FormatMonthDay(mealPlan.Date) }</p>
 		<input type="hidden" name="date" value={ FormatDate(mealPlan.Date) }/>
 		<div class="grid">
 			@mealInput("Breakfast", "breakfast", mealPlan.Breakfast)
@@ -118,7 +115,7 @@ templ Index(pageData PageData) {
 						<p class="cell is-col-span-2 title is-5">
 							Week
 							<br/>
-							{ FormatMonthDay(pageData.WeekStart) } / { FormatMonthDay(pageData.WeekEnd) }
+							{ FormatMonthDay(pageData.WeekStart) } - { FormatMonthDay(pageData.WeekEnd) }
 						</p>
 						<a href={ templ.URL(fmt.Sprintf("/?start-date=%s", FormatDate(pageData.NextWeek))) } class="cell button">Next</a>
 					</div>
@@ -179,7 +176,7 @@ templ GroceryList(groceries []db.GroceryItem) {
 							</div>
 						</div>
 					</form>
-					<a role="button" class="button is-info" href="/groceries">Refresh</a>
+					<a href="/groceries">Refresh</a>
 				</div>
 				<div id="grocery-list">
 					for _, item := range groceries {

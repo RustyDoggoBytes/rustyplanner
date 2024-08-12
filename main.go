@@ -46,7 +46,7 @@ func FormatDate(date time.Time) string {
 }
 
 func FormatMonthDay(date time.Time) string {
-	return date.Format("01-02")
+	return date.Format("01/02")
 }
 
 func main() {
