@@ -1,6 +1,7 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "Rusty Planner",
+    "short_name": "Organize your life",
+    "start_url": "/",
     "icons": [
         {
             "src": "/static/android-chrome-192x192.png",
