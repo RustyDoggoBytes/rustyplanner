@@ -1,0 +1,80 @@
+package components
+
+import (
+	"fmt"
+	"rustydoggobytes/planner/db"
+)
+
+templ GroceryListItem(item db.GroceryItem) {
+	<a
+		class="panel-block"
+		hx-put={ string(templ.URL(fmt.Sprintf("/groceries/%d/toggle", item.ID))) }
+		hx-swap="outerHTML"
+	>
+		<input
+			type="checkbox"
+			if item.Completed {
+				checked
+			}
+		/>
+		<span class="mr-auto">
+			if !item.Completed {
+				{ item.Name }
+			} else {
+				<s>{ item.Name }</s>
+			}
+		</span>
+		<button
+			class="delete"
+			hx-delete={ string(templ.URL(fmt.Sprintf("/groceries/%d", item.ID))) }
+			hx-target="closest a"
+			hx-swap="outerHTML swap:100ms"
+		></button>
+	</a>
+}
+
+templ GroceryList(groceries []db.GroceryItem) {
+	@Layout() {
+		<section class="section">
+			<nav class="panel is-black">
+				<p class="panel-heading">Groceries</p>
+				<div class="panel-block">
+					<form class="is-fullwidth mr-auto" hx-post="/groceries" hx-target="#grocery-list" hx-swap="afterbegin">
+						<div class="field has-addons">
+							<div class="control is-expanded">
+								<input class="input" type="text" name="name" id="grocery-input" placeholder="Add a new item"/>
+							</div>
+							<div class="control">
+								<button class="button is-primary" hx-post="/groceries" hx-on::after-request="clearAndFocus(event)">Add</button>
+							</div>
+						</div>
+					</form>
+					<a href="/groceries">Refresh</a>
+				</div>
+				<div id="grocery-list">
+					for _, item := range groceries {
+						@GroceryListItem(item)
+					}
+				</div>
+			</nav>
+		</section>
+		<script type="text/javascript">
+            const $input = document.getElementById('grocery-input');
+            document.addEventListener('DOMContentLoaded', function() {
+                $input.focus();
+            });
+
+            function clearAndFocus(event) {
+                if (event.detail.successful) {
+                  $input.value = '';
+                  // Delay focus for iOS devices
+                  setTimeout(function() {
+                      $input.focus();
+                      // Scroll to the input if needed
+                      $input.scrollIntoView({behavior: "smooth", block: "center"});
+                  }, 100);
+                }
+            }
+        </script>
+	}
+}

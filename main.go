@@ -10,7 +10,10 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"rustydoggobytes/planner/components"
 	"rustydoggobytes/planner/db"
+	"rustydoggobytes/planner/middlewares"
+	"rustydoggobytes/planner/utils"
 	"time"
 )
 
@@ -30,28 +33,11 @@ func getFileSystem() http.FileSystem {
 	return http.FS(fsys)
 }
 
-type PageData struct {
-	WeekStart    time.Time
-	WeekEnd      time.Time
-	PreviousWeek time.Time
-	NextWeek     time.Time
-	Meals        []db.MealPlan
-	FormData     map[string][]string
-}
-
 var userID int64 = 1
-
-func FormatDate(date time.Time) string {
-	return date.Format("2006-01-02")
-}
-
-func FormatMonthDay(date time.Time) string {
-	return date.Format("01/02")
-}
 
 func main() {
 	ctx := context.Background()
-	host := GetEnv("HOST", "localhost")
+	host := utils.GetEnv("HOST", "localhost")
 
 	sqlite3, err := sql.Open("sqlite3", "data/planner.db")
 	if err != nil {
@@ -69,6 +55,10 @@ func main() {
 	})
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/groceries", http.StatusFound)
+	})
+
+	mux.HandleFunc("GET /meal-plans", func(w http.ResponseWriter, r *http.Request) {
 		date := time.Now()
 
 		startDay := r.URL.Query().Get("start-date")
@@ -79,14 +69,14 @@ func main() {
 			}
 		}
 
-		monday := getMondayOfCurrentWeek(date)
+		monday := utils.GetMondayOfCurrentWeek(date)
 		sunday := monday.AddDate(0, 0, 6)
 		meals, err := repository.GetMealPlanByDate(userID, monday, sunday)
 		if err != nil {
 			slog.Error("failed to retrieve meals", "start-date", monday, "end-date", monday, "error", err)
 		}
 
-		component := Index(PageData{
+		component := components.MealPage(components.PageData{
 			WeekStart:    monday,
 			WeekEnd:      sunday,
 			PreviousWeek: monday.AddDate(0, 0, -7),
@@ -97,7 +87,7 @@ func main() {
 		component.Render(r.Context(), w)
 	})
 
-	mux.HandleFunc("POST /meal-plan/{date}", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /meal-plans/{date}", func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseForm()
 		if err != nil {
 			slog.Error("failed to read meals form", err)
@@ -117,7 +107,7 @@ func main() {
 		}
 
 		err = repository.UpdateMealPlan(userID, meal)
-		component := MealPlanCardForm(meal, err == nil, err)
+		component := components.MealPlanCardForm(meal, err == nil, err)
 		component.Render(r.Context(), w)
 	})
 
@@ -127,7 +117,7 @@ func main() {
 			slog.Error("failed to list groceries", "user_id", userID)
 		}
 
-		component := GroceryList(items)
+		component := components.GroceryList(items)
 		component.Render(r.Context(), w)
 	})
 
@@ -141,7 +131,7 @@ func main() {
 			slog.Error("failed to create grocery", err)
 		}
 
-		component := GroceryListItem(*item)
+		component := components.GroceryListItem(*item)
 		component.Render(r.Context(), w)
 	})
 
@@ -160,17 +150,17 @@ func main() {
 			slog.Error("failed to toggle item", "id", id, err)
 		}
 
-		component := GroceryListItem(*item)
+		component := components.GroceryListItem(*item)
 		component.Render(r.Context(), w)
 	})
 
 	address := fmt.Sprintf("%s:8080", host)
 	slog.Info("running server", "address", address)
 
-	protectedMux := basicAuthMiddleware(
+	protectedMux := middlewares.BasicAuthMiddleware(
 		mux,
-		GetEnv("AUTH_USER", "rusty"),
-		GetEnv("AUTH_PASSWORD", "doggo"),
+		utils.GetEnv("AUTH_USER", "rusty"),
+		utils.GetEnv("AUTH_PASSWORD", "doggo"),
 	)
 
 	log.Fatal(http.ListenAndServe(address, protectedMux))

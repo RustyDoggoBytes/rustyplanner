@@ -1,0 +1,73 @@
+package components
+
+templ Layout() {
+	<!DOCTYPE html>
+	<html lang="en" class="has-navbar-fixed-bottom">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta
+				name="viewport"
+				content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+			/>
+			<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+			<title>Rusty Planner</title>
+			<script src="/static/js/htmx.min.js"></script>
+			<link rel="stylesheet" href="/static/css/bulma.min.css"/>
+			<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+            <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+            <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+            <link rel="manifest" href="/static/site.webmanifest">
+            <link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#5bbad5">
+            <meta name="msapplication-TileColor" content="#da532c">
+            <meta name="theme-color" content="#ffffff">
+		</head>
+		<body hx-boost="true">
+			<header>
+				<nav class="navbar is-dark is-fixed-bottom-touch" role="navigation" aria-label="main navigation">
+					<div class="navbar-brand">
+						<div class="navbar-item">
+							RP
+						</div>
+						<a
+							role="button"
+							class="navbar-burger"
+							aria-label="menu"
+							aria-expanded="false"
+							data-target="navbarBasicExample"
+							onclick="toggleNavBurger(this)"
+						>
+							<span aria-hidden="true"></span>
+							<span aria-hidden="true"></span>
+							<span aria-hidden="true"></span>
+							<span aria-hidden="true"></span>
+						</a>
+					</div>
+					<div class="navbar-menu" id="navbarBasicExample">
+						<div class="navbar-end">
+							<a class="navbar-item" href="/groceries">
+								Groceries
+							</a>
+							<a class="navbar-item" href="/meal-plans">
+								Meal Plans
+							</a>
+						</div>
+					</div>
+				</nav>
+			</header>
+			<main>
+				{ children... }
+			</main>
+			<footer class="footer has-text-centered">Rusty Doggo Bytes &copy; 2024</footer>
+			<script>
+                function toggleNavBurger(element) {
+                    const target = element.dataset.target;
+                    const $target = document.getElementById(target);
+
+                    element.classList.toggle('is-active');
+                    $target.classList.toggle('is-active');
+                }
+            </script>
+		</body>
+	</html>
+}
+
