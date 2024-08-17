@@ -8,55 +8,49 @@ import (
 
 templ MealPage(pageData PageData) {
 	@Layout() {
-		<section class="section">
-			<div class="container">
-				<h1 class="title">Meal Plan</h1>
-				<nav class="level">
-					<div class="level-left">
-						<div class="level-item">
-							<a href={ templ.URL(fmt.Sprintf("/meal-plans?start-date=%s", utils.FormatDate(pageData.PreviousWeek))) } class="cell button">Previous</a>
-						</div>
-					</div>
-					<div class="level-item has-text-centered">
-						<div>
-							<p class="heading">Week</p>
-							<p class="title">
-								{ utils.FormatMonthDay(pageData.WeekStart) } - { utils.FormatMonthDay(pageData.WeekEnd) }
-							</p>
-						</div>
-					</div>
-					<div class="level-left">
-						<div class="level-item">
-							<a href={ templ.URL(fmt.Sprintf("/meal-plans?start-date=%s", utils.FormatDate(pageData.NextWeek))) } class="cell button">Next</a>
-						</div>
-					</div>
-				</nav>
-				for _, mealPlan := range pageData.Meals {
-					<div class="content">
-						<div class="box">
-							@MealPlanCardForm(mealPlan, false, nil)
-						</div>
-					</div>
-				}
+		<h1 class="title">Meal Plan</h1>
+		<nav>
+			<div>
+				<a href={ templ.URL(fmt.Sprintf("/meal-plans?start-date=%s", utils.FormatDate(pageData.PreviousWeek))) } class="cell button">Previous</a>
 			</div>
-		</section>
+			<hgroup style="text-align: center">
+				<h3>
+					{ utils.FormatMonthDay(pageData.WeekStart) } - { utils.FormatMonthDay(pageData.WeekEnd) }
+				</h3>
+			</hgroup>
+			<div>
+				<a href={ templ.URL(fmt.Sprintf("/meal-plans?start-date=%s", utils.FormatDate(pageData.NextWeek))) } class="cell button">Next</a>
+			</div>
+		</nav>
+		for _, mealPlan := range pageData.Meals {
+			<div class="content">
+				<div class="box">
+					@MealPlanCardForm(mealPlan, false, nil)
+				</div>
+			</div>
+		}
 	}
 }
 
 templ mealInput(label string, inputName string, inputValue string) {
-	<div class="cell field">
-		<label class="label" for={ inputName }>{ label }</label>
-		<div class="control">
-			<input class="input" type="text" name={ inputName } id={ inputName } value={ inputValue }/>
-		</div>
-	</div>
+	<label>
+		{ label }
+		<input class="input" type="text" name={ inputName } id={ inputName } value={ inputValue }/>
+	</label>
 }
 
 templ MealPlanCardForm(mealPlan db.MealPlan, success bool, err error) {
 	<form hx-post={ string(templ.URL(fmt.Sprintf("/meal-plans/%s", utils.FormatDate(mealPlan.Date)))) } hx-target="this" hx-swap="outerHTML">
-		<p class="title is-4">
-			{ mealPlan.Date.Weekday().String() } <span class="tag is-dark">{ utils.FormatMonthDay(mealPlan.Date) } </span>
-		</p>
+		<nav>
+			<ul>
+				<li>
+					<h4>{ mealPlan.Date.Weekday().String() }</h4>
+				</li>
+				<li>
+					<p><small>{ utils.FormatMonthDay(mealPlan.Date) }</small></p>
+				</li>
+			</ul>
+		</nav>
 		<input type="hidden" name="date" value={ utils.FormatDate(mealPlan.Date) }/>
 		<div class="grid">
 			@mealInput("Breakfast", "breakfast", mealPlan.Breakfast)
@@ -64,15 +58,15 @@ templ MealPlanCardForm(mealPlan db.MealPlan, success bool, err error) {
 			@mealInput("Lunch", "lunch", mealPlan.Lunch)
 			@mealInput("Snack 2", "snack2", mealPlan.Snack2)
 			@mealInput("Dinner", "dinner", mealPlan.Dinner)
-			<div class="cell field">
-				<label class="label">&nbsp;</label> <!-- Invisible label -->
-				<button class="button is-primary">Save</button>
+			<label>
+				<span>&nbsp;</span>
+				<input type="submit" value="Save"/>
 				if success {
-					<p class="help is-success">Saved successfully</p>
+					<small>Saved successfully</small>
 				} else if err != nil {
-					<p class="help is-danger">Failed. { fmt.Sprint(err) }</p>
+					<small>Failed. { fmt.Sprint(err) }</small>
 				}
-			</div>
+			</label>
 		</div>
 	</form>
 }

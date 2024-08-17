@@ -19,57 +19,44 @@ templ Layout() {
 			<meta name="msapplication-TileColor" content="#da532c"/>
 			<meta name="theme-color" content="#ffffff"/>
 			<script src="/static/js/htmx.min.js"></script>
-			<link rel="stylesheet" href="/static/css/bulma.min.css"/>
+			<link rel="stylesheet" href="/static/css/pico.min.css"/>
 		</head>
 		<body hx-boost="true">
-			<header>
-				<nav class="navbar is-dark is-fixed-bottom-touch" role="navigation" aria-label="main navigation">
-					<div class="navbar-brand">
-						<div class="navbar-item">
-							RP
-						</div>
-						<a
-							role="button"
-							class="navbar-burger"
-							aria-label="menu"
-							aria-expanded="false"
-							data-target="navbarBasicExample"
-							onclick="toggleNavBurger(this)"
-						>
-							<span aria-hidden="true"></span>
-							<span aria-hidden="true"></span>
-							<span aria-hidden="true"></span>
-							<span aria-hidden="true"></span>
-						</a>
-					</div>
-					<div class="navbar-menu" id="navbarBasicExample">
-						<div class="navbar-end">
+			<header class="container-fluid">
+				<nav>
+					<ul>
+						<li>
+							<h1>RP</h1>
+						</li>
+					</ul>
+					<ul dir="rtl">
+						<li>
 							<a class="navbar-item" href="/chores">
 								Chores
 							</a>
+						</li>
+						<li>
 							<a class="navbar-item" href="/groceries">
 								Groceries
 							</a>
+						</li>
+						<li>
 							<a class="navbar-item" href="/meal-plans">
 								Meal Plans
 							</a>
-						</div>
-					</div>
+						</li>
+					</ul>
 				</nav>
 			</header>
-			<main>
+			<main class="container">
 				{ children... }
 			</main>
-			<footer class="footer has-text-centered">Rusty Doggo Bytes &copy; 2024</footer>
-			<script>
-                function toggleNavBurger(element) {
-                    const target = element.dataset.target;
-                    const $target = document.getElementById(target);
-
-                    element.classList.toggle('is-active');
-                    $target.classList.toggle('is-active');
-                }
-            </script>
+			<footer class="container-fluid" style="text-align: center">
+				<hr/>
+				<section>
+					Rusty Doggo Bytes &copy; 2024
+				</section>
+			</footer>
 		</body>
 	</html>
 }

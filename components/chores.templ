@@ -12,103 +12,138 @@ templ ChoresPage(chores []string) {
 }
 
 templ ChoresForm() {
-	<form method="post" action="/chores">
-		<div class="columns">
-			<div class="column">
-				<div class="cell field ">
-					<label class="label">Chore Item</label>
-					<div class="control">
-						<input type="text" name="name" class="input"/>
-					</div>
-				</div>
-			</div>
-			<div class="column is-narrow">
-				<label class="label"><span>&nbsp;</span></label>
-				<button class="button is-primary ">Add</button>
-			</div>
-		</div>
-		<div class="cell field">
-			<label class="label">Assign to</label>
-			<div class="select">
+	<form
+		method="post"
+		action="/chores"
+		hx-target="table"
+		hx-swap="beforebegin"
+	>
+		<label>
+			Chore Item
+			<input type="text" name="name" id="chore-input"/>
+		</label>
+		<div class="grid">
+			<label>
+				Assign to
 				<select name="assigned-to">
 					<option value="Ivan">Ivan</option>
 					<option value="Megan">Megan</option>
 				</select>
-			</div>
-		</div>
-		<div class="cell field">
-			<label class="label"><span>How often?</span></label>
-			<div class="select">
-				<select name="frequency">
-					<option value="once" selected>once</option>
+			</label>
+			<label>
+				How often?
+				<select
+					name="frequency-type"
+					hx-get="/chores/partials/form"
+					hx-include="this"
+					hx-trigger="change"
+					hx-target="#form-frequency"
+					hx-swap="innerHTML"
+				>
+					<option value="once">once</option>
 					<option value="daily">day</option>
 					<option value="weekly">week</option>
 				</select>
-			</div>
+			</label>
 		</div>
-		<div class="cell field">
-			<label class="label">Due Date</label>
-			<div class="control">
-				<input type="date" class="input" value="once-due-date"/>
-			</div>
+		<div id="form-frequency">
+			@ChoreFormOnce()
 		</div>
-		<div class="columns">
-			<div class="column">
-				<div class="cell field">
-					<label for="repeat" class="label">Frequency</label>
-					<div class="control">
-						<div class="control">
-							<input type="text" id="repeat" name="repeat" class="input"/>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="cell field">
-			<label class="label"><span>&nbsp;</span></label>
-		</div>
-		<div class="cell field" id="menu-week">
-			<label class="label"><span>Repeat On:</span></label>
-			<div class="checkboxes">
-				for _, dow := range []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"} {
-					<label class="checkbox">
-						<input type="checkbox" name="dow" value={ dow }/>
-						{ dow }
-					</label>
-				}
-			</div>
-		</div>
+		<input type="submit" value="Add Chore" hx-on::after-request="clearAndFocus(event)"/>
 	</form>
+	<script>
+		function clearAndFocus(event) {
+            const $input = document.getElementById('#chore-input');
+            document.addEventListener('DOMContentLoaded', function () {
+                $input.focus();
+            });
+
+            if (event.detail.successful) {
+                $input.value = '';
+                // Delay focus for iOS devices
+                setTimeout(function () {
+                    $input.focus();
+                    // Scroll to the input if needed
+                    $input.scrollIntoView({behavior: "smooth", block: "center"});
+                }, 100);
+            }
+        }
+		</script>
+}
+
+templ ChoreFormOnce() {
+	<label>
+		Due Date
+		<input type="date" name="once-due-date"/>
+	</label>
+}
+
+templ ChoreFormDaily() {
+	<fieldset role="group">
+		<label>
+			Every
+			<input type="number" name="frequency" value="1"/>
+		</label>
+		<label>
+			&nbsp;
+			<input type="text" value="days" readonly/>
+		</label>
+	</fieldset>
+}
+
+templ ChoreFormWeekly() {
+	<div>
+		<fieldset>
+			<legend>Repeat On:</legend>
+			for _, dow := range []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"} {
+				<label>
+					<input type="checkbox" name={ dow } id={ dow }/>
+					{ dow }
+				</label>
+			}
+		</fieldset>
+		<fieldset role="group">
+			<label>
+				Every
+				<input type="number" name="frequency" value="1"/>
+			</label>
+			<label>
+				&nbsp;
+				<input type="text" value="weeks" readonly/>
+			</label>
+		</fieldset>
+	</div>
 }
 
 templ ChoreList(chores []string) {
-	<section class="section">
-		<div class="container">
-			<h1 class="title">Chores</h1>
-			<table class="table is-fullwidth is-hoverable">
-				<thead>
-					<tr>
-						<th>Item</th>
-						<th>Assigned</th>
-						<th>Due</th>
-						<th><span>&nbsp;</span></th>
-					</tr>
-				</thead>
-				for _, chore := range chores {
-					<tr>
-						<td>
-							{ chore }
-						</td>
-						<td>Ivan</td>
-						<td>today</td>
-						<td class="has-text-right">
-							<button class="button is-primary">Complete</button>
-							<button class="button">Edit</button>
-							<button class="delete is-medium"></button>
-						</td>
-					</tr>
-				}
-			</table>
-		</div>
+	<section>
+		<h1 class="title">Chores</h1>
+		<table class="table is-fullwidth is-hoverable">
+			<thead>
+				<tr>
+					<th>Item</th>
+					<th>Assigned</th>
+					<th>Due</th>
+					<th><span>&nbsp;</span></th>
+				</tr>
+			</thead>
+			for _, chore := range chores {
+				<tr>
+					<td>
+						{ chore }
+					</td>
+					<td>Ivan</td>
+					<td>today</td>
+					<td dir="rtl">
+						<a href="#" hx-delete="/chore/id">
+							@DeleteSvg()
+						</a>
+						<a href="#" hx-get="/chore/id">
+							@EditSvg()
+						</a>
+					</td>
+				</tr>
+			}
+		</table>
 	</section>
 }

@@ -162,6 +162,31 @@ func main() {
 		component.Render(r.Context(), w)
 	})
 
+	mux.HandleFunc("POST /chores", func(w http.ResponseWriter, r *http.Request) {
+		chores := []string{
+			"Take-out trash",
+		}
+		component := components.ChoresPage(chores)
+		component.Render(r.Context(), w)
+	})
+
+	mux.HandleFunc("GET /chores/partials/form", func(w http.ResponseWriter, r *http.Request) {
+		frequency := r.URL.Query().Get("frequency-type")
+		component := components.ChoreFormOnce()
+		switch frequency {
+		case "weekly":
+			component = components.ChoreFormWeekly()
+			break
+		case "daily":
+			component = components.ChoreFormDaily()
+			break
+		default:
+			component = components.ChoreFormOnce()
+		}
+
+		component.Render(r.Context(), w)
+	})
+
 	address := fmt.Sprintf("%s:8080", host)
 	slog.Info("running server", "address", address)
 
