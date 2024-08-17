@@ -44,7 +44,7 @@ func MealPage(pageData PageData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"section\"><div class=\"container\"><h1 class=\"title\">Meal Plan</h1><div class=\"level\"></div><div class=\"fixed-grid has-4-cols\"><div class=\"grid has-text-centered\"><a href=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"section\"><div class=\"container\"><h1 class=\"title\">Meal Plan</h1><nav class=\"level\"><div class=\"level-left\"><div class=\"level-item\"><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -53,14 +53,14 @@ func MealPage(pageData PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"cell button\">Previous</a><p class=\"cell is-col-span-2 title is-5\">Week<br>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"cell button\">Previous</a></div></div><div class=\"level-item has-text-centered\"><div><p class=\"heading\">Week</p><p class=\"title\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatMonthDay(pageData.WeekStart))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 21, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 24, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -73,13 +73,13 @@ func MealPage(pageData PageData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatMonthDay(pageData.WeekEnd))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 21, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 24, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><a href=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></div></div><div class=\"level-left\"><div class=\"level-item\"><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -88,7 +88,7 @@ func MealPage(pageData PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"cell button\">Next</a></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"cell button\">Next</a></div></div></nav>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -145,7 +145,7 @@ func mealInput(label string, inputName string, inputValue string) templ.Componen
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(inputName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 40, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 48, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -158,7 +158,7 @@ func mealInput(label string, inputName string, inputValue string) templ.Componen
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 40, Col: 48}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 48, Col: 48}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -171,7 +171,7 @@ func mealInput(label string, inputName string, inputValue string) templ.Componen
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(inputName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 42, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 50, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -184,7 +184,7 @@ func mealInput(label string, inputName string, inputValue string) templ.Componen
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(inputName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 42, Col: 69}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 50, Col: 69}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -197,7 +197,7 @@ func mealInput(label string, inputName string, inputValue string) templ.Componen
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(inputValue)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 42, Col: 90}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 50, Col: 90}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -236,7 +236,7 @@ func MealPlanCardForm(mealPlan db.MealPlan, success bool, err error) templ.Compo
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/meal-plans/%s", utils.FormatDate(mealPlan.Date)))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 48, Col: 98}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 56, Col: 98}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -249,7 +249,7 @@ func MealPlanCardForm(mealPlan db.MealPlan, success bool, err error) templ.Compo
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(mealPlan.Date.Weekday().String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 50, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 58, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -262,7 +262,7 @@ func MealPlanCardForm(mealPlan db.MealPlan, success bool, err error) templ.Compo
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatMonthDay(mealPlan.Date))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 50, Col: 103}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 58, Col: 103}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func MealPlanCardForm(mealPlan db.MealPlan, success bool, err error) templ.Compo
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(utils.FormatDate(mealPlan.Date))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 52, Col: 74}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 60, Col: 74}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -322,7 +322,7 @@ func MealPlanCardForm(mealPlan db.MealPlan, success bool, err error) templ.Compo
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(err))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 65, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/meal-plans.templ`, Line: 73, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {

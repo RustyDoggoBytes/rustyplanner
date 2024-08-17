@@ -154,6 +154,14 @@ func main() {
 		component.Render(r.Context(), w)
 	})
 
+	mux.HandleFunc("GET /chores", func(w http.ResponseWriter, r *http.Request) {
+		chores := []string{
+			"Take-out trash",
+		}
+		component := components.ChoresPage(chores)
+		component.Render(r.Context(), w)
+	})
+
 	address := fmt.Sprintf("%s:8080", host)
 	slog.Info("running server", "address", address)
 

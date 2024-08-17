@@ -1,0 +1,114 @@
+package components
+
+templ ChoresPage(chores []string) {
+	@Layout() {
+		<section class="section">
+			<div class="container">
+				@ChoresForm()
+				@ChoreList(chores)
+			</div>
+		</section>
+	}
+}
+
+templ ChoresForm() {
+	<form method="post" action="/chores">
+		<div class="columns">
+			<div class="column">
+				<div class="cell field ">
+					<label class="label">Chore Item</label>
+					<div class="control">
+						<input type="text" name="name" class="input"/>
+					</div>
+				</div>
+			</div>
+			<div class="column is-narrow">
+				<label class="label"><span>&nbsp;</span></label>
+				<button class="button is-primary ">Add</button>
+			</div>
+		</div>
+		<div class="cell field">
+			<label class="label">Assign to</label>
+			<div class="select">
+				<select name="assigned-to">
+					<option value="Ivan">Ivan</option>
+					<option value="Megan">Megan</option>
+				</select>
+			</div>
+		</div>
+		<div class="cell field">
+			<label class="label"><span>How often?</span></label>
+			<div class="select">
+				<select name="frequency">
+					<option value="once" selected>once</option>
+					<option value="daily">day</option>
+					<option value="weekly">week</option>
+				</select>
+			</div>
+		</div>
+		<div class="cell field">
+			<label class="label">Due Date</label>
+			<div class="control">
+				<input type="date" class="input" value="once-due-date"/>
+			</div>
+		</div>
+		<div class="columns">
+			<div class="column">
+				<div class="cell field">
+					<label for="repeat" class="label">Frequency</label>
+					<div class="control">
+						<div class="control">
+							<input type="text" id="repeat" name="repeat" class="input"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="cell field">
+			<label class="label"><span>&nbsp;</span></label>
+		</div>
+		<div class="cell field" id="menu-week">
+			<label class="label"><span>Repeat On:</span></label>
+			<div class="checkboxes">
+				for _, dow := range []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"} {
+					<label class="checkbox">
+						<input type="checkbox" name="dow" value={ dow }/>
+						{ dow }
+					</label>
+				}
+			</div>
+		</div>
+	</form>
+}
+
+templ ChoreList(chores []string) {
+	<section class="section">
+		<div class="container">
+			<h1 class="title">Chores</h1>
+			<table class="table is-fullwidth is-hoverable">
+				<thead>
+					<tr>
+						<th>Item</th>
+						<th>Assigned</th>
+						<th>Due</th>
+						<th><span>&nbsp;</span></th>
+					</tr>
+				</thead>
+				for _, chore := range chores {
+					<tr>
+						<td>
+							{ chore }
+						</td>
+						<td>Ivan</td>
+						<td>today</td>
+						<td class="has-text-right">
+							<button class="button is-primary">Complete</button>
+							<button class="button">Edit</button>
+							<button class="delete is-medium"></button>
+						</td>
+					</tr>
+				}
+			</table>
+		</div>
+	</section>
+}

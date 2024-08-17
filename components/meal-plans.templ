@@ -11,18 +11,26 @@ templ MealPage(pageData PageData) {
 		<section class="section">
 			<div class="container">
 				<h1 class="title">Meal Plan</h1>
-				<div class="level"></div>
-				<div class="fixed-grid has-4-cols">
-					<div class="grid has-text-centered">
-						<a href={ templ.URL(fmt.Sprintf("/meal-plans?start-date=%s", utils.FormatDate(pageData.PreviousWeek))) } class="cell button">Previous</a>
-						<p class="cell is-col-span-2 title is-5">
-							Week
-							<br/>
-							{ utils.FormatMonthDay(pageData.WeekStart) } - { utils.FormatMonthDay(pageData.WeekEnd) }
-						</p>
-						<a href={ templ.URL(fmt.Sprintf("/meal-plans?start-date=%s", utils.FormatDate(pageData.NextWeek))) } class="cell button">Next</a>
+				<nav class="level">
+					<div class="level-left">
+						<div class="level-item">
+							<a href={ templ.URL(fmt.Sprintf("/meal-plans?start-date=%s", utils.FormatDate(pageData.PreviousWeek))) } class="cell button">Previous</a>
+						</div>
 					</div>
-				</div>
+					<div class="level-item has-text-centered">
+						<div>
+							<p class="heading">Week</p>
+							<p class="title">
+								{ utils.FormatMonthDay(pageData.WeekStart) } - { utils.FormatMonthDay(pageData.WeekEnd) }
+							</p>
+						</div>
+					</div>
+					<div class="level-left">
+						<div class="level-item">
+							<a href={ templ.URL(fmt.Sprintf("/meal-plans?start-date=%s", utils.FormatDate(pageData.NextWeek))) } class="cell button">Next</a>
+						</div>
+					</div>
+				</nav>
 				for _, mealPlan := range pageData.Meals {
 					<div class="content">
 						<div class="box">
