@@ -1,14 +1,66 @@
 package components
 
-templ ChoresPage(chores []string) {
+import (
+	"fmt"
+	"rustydoggobytes/planner/db"
+	"rustydoggobytes/planner/routes"
+	"rustydoggobytes/planner/utils"
+)
+
+templ ChoresPage(pageData routes.ChorePageData) {
 	@Layout() {
+		if pageData.Error != "" {
+			<p>{ pageData.Error }</p>
+		}
 		<section class="section">
 			<div class="container">
 				@ChoresForm()
-				@ChoreList(chores)
+				@ChoreList(pageData.Chores)
 			</div>
 		</section>
 	}
+}
+
+templ ChoreList(chores []db.Chores) {
+	<section>
+		<h1 class="title">Chores</h1>
+		<table class="table is-fullwidth is-hoverable">
+			<thead>
+				<tr>
+					<th>Item</th>
+					<th>Assigned</th>
+					<th>Due</th>
+					<th><span>&nbsp;</span></th>
+				</tr>
+			</thead>
+			for _, chore := range chores {
+				@ChoreListItem(chore)
+			}
+		</table>
+	</section>
+}
+
+templ ChoreListItem(chore db.Chores) {
+	<tr>
+		<td>
+			{ chore.Title }
+		</td>
+		<td>{ chore.Assigned }</td>
+		<td>{ utils.FormatDate(chore.DueDate) }</td>
+		<td dir="rtl">
+			<a
+				href="#"
+				hx-delete={ string(templ.URL(fmt.Sprintf("/chores/%d", chore.ID))) }
+				hx-target="closest tr"
+				hx-swap="outerHTML swap:100ms"
+			>
+				@DeleteSvg()
+			</a>
+			<a href="#" hx-get="/chore/id">
+				@EditSvg()
+			</a>
+		</td>
+	</tr>
 }
 
 templ ChoresForm() {
@@ -16,11 +68,11 @@ templ ChoresForm() {
 		method="post"
 		action="/chores"
 		hx-target="table"
-		hx-swap="beforebegin"
+		hx-swap="afterbegin"
 	>
 		<label>
 			Chore Item
-			<input type="text" name="name" id="chore-input"/>
+			<input type="text" name="title" id="chore-title"/>
 		</label>
 		<div class="grid">
 			<label>
@@ -49,26 +101,8 @@ templ ChoresForm() {
 		<div id="form-frequency">
 			@ChoreFormOnce()
 		</div>
-		<input type="submit" value="Add Chore" hx-on::after-request="clearAndFocus(event)"/>
+		<input type="submit" value="Add Chore" hx-on::after-request="clearAndFocus(event, 'chore-title')"/>
 	</form>
-	<script>
-		function clearAndFocus(event) {
-            const $input = document.getElementById('#chore-input');
-            document.addEventListener('DOMContentLoaded', function () {
-                $input.focus();
-            });
-
-            if (event.detail.successful) {
-                $input.value = '';
-                // Delay focus for iOS devices
-                setTimeout(function () {
-                    $input.focus();
-                    // Scroll to the input if needed
-                    $input.scrollIntoView({behavior: "smooth", block: "center"});
-                }, 100);
-            }
-        }
-		</script>
 }
 
 templ ChoreFormOnce() {
@@ -113,37 +147,4 @@ templ ChoreFormWeekly() {
 			</label>
 		</fieldset>
 	</div>
-}
-
-templ ChoreList(chores []string) {
-	<section>
-		<h1 class="title">Chores</h1>
-		<table class="table is-fullwidth is-hoverable">
-			<thead>
-				<tr>
-					<th>Item</th>
-					<th>Assigned</th>
-					<th>Due</th>
-					<th><span>&nbsp;</span></th>
-				</tr>
-			</thead>
-			for _, chore := range chores {
-				<tr>
-					<td>
-						{ chore }
-					</td>
-					<td>Ivan</td>
-					<td>today</td>
-					<td dir="rtl">
-						<a href="#" hx-delete="/chore/id">
-							@DeleteSvg()
-						</a>
-						<a href="#" hx-get="/chore/id">
-							@EditSvg()
-						</a>
-					</td>
-				</tr>
-			}
-		</table>
-	</section>
 }

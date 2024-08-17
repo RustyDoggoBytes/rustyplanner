@@ -5,8 +5,48 @@
 package sqlc
 
 import (
+	"database/sql"
 	"time"
 )
+
+type Chore struct {
+	ID             int64
+	UserID         int64
+	Title          string
+	RecurrenceType string
+	RecurrenceID   int64
+	Assigned       sql.NullString
+	Created        sql.NullTime
+	LastUpdated    sql.NullTime
+}
+
+type ChoresRecurrenceDaily struct {
+	ID        int64
+	Frequency int64
+}
+
+type ChoresRecurrenceMonthly struct {
+	ID         int64
+	Frequency  int64
+	DayOfMonth int64
+}
+
+type ChoresRecurrenceOnce struct {
+	ID      int64
+	DueDate time.Time
+}
+
+type ChoresRecurrenceWeekly struct {
+	ID        int64
+	Frequency int64
+	Mon       sql.NullInt64
+	Tue       sql.NullInt64
+	Wed       sql.NullInt64
+	Thu       sql.NullInt64
+	Fri       sql.NullInt64
+	Sat       sql.NullInt64
+	Sun       sql.NullInt64
+}
 
 type Grocery struct {
 	ID          int64

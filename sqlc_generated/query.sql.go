@@ -7,8 +7,45 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
+
+const createChore = `-- name: CreateChore :one
+INSERT INTO chores (user_id, title, recurrence_type, recurrence_id, assigned)
+VALUES (?, ?, ?, ?, ?)
+RETURNING id, user_id, title, recurrence_type, recurrence_id, assigned, created, last_updated
+`
+
+type CreateChoreParams struct {
+	UserID         int64
+	Title          string
+	RecurrenceType string
+	RecurrenceID   int64
+	Assigned       sql.NullString
+}
+
+func (q *Queries) CreateChore(ctx context.Context, arg CreateChoreParams) (Chore, error) {
+	row := q.db.QueryRowContext(ctx, createChore,
+		arg.UserID,
+		arg.Title,
+		arg.RecurrenceType,
+		arg.RecurrenceID,
+		arg.Assigned,
+	)
+	var i Chore
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.RecurrenceType,
+		&i.RecurrenceID,
+		&i.Assigned,
+		&i.Created,
+		&i.LastUpdated,
+	)
+	return i, err
+}
 
 const createGroceryItem = `-- name: CreateGroceryItem :one
 INSERT INTO groceries
@@ -33,6 +70,58 @@ func (q *Queries) CreateGroceryItem(ctx context.Context, arg CreateGroceryItemPa
 		&i.Completed,
 		&i.LastUpdated,
 	)
+	return i, err
+}
+
+const createOnceRecurrence = `-- name: CreateOnceRecurrence :one
+INSERT INTO chores_recurrence_once (due_date) VALUES (?)
+RETURNING id, due_date
+`
+
+func (q *Queries) CreateOnceRecurrence(ctx context.Context, dueDate time.Time) (ChoresRecurrenceOnce, error) {
+	row := q.db.QueryRowContext(ctx, createOnceRecurrence, dueDate)
+	var i ChoresRecurrenceOnce
+	err := row.Scan(&i.ID, &i.DueDate)
+	return i, err
+}
+
+const deleteChore = `-- name: DeleteChore :one
+DELETE FROM chores
+WHERE id = ? AND user_id = ?
+RETURNING id, user_id, title, recurrence_type, recurrence_id, assigned, created, last_updated
+`
+
+type DeleteChoreParams struct {
+	ID     int64
+	UserID int64
+}
+
+func (q *Queries) DeleteChore(ctx context.Context, arg DeleteChoreParams) (Chore, error) {
+	row := q.db.QueryRowContext(ctx, deleteChore, arg.ID, arg.UserID)
+	var i Chore
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.RecurrenceType,
+		&i.RecurrenceID,
+		&i.Assigned,
+		&i.Created,
+		&i.LastUpdated,
+	)
+	return i, err
+}
+
+const deleteChoreRecurrenceOnce = `-- name: DeleteChoreRecurrenceOnce :one
+DELETE FROM chores_recurrence_once
+where id = ?
+RETURNING id, due_date
+`
+
+func (q *Queries) DeleteChoreRecurrenceOnce(ctx context.Context, id int64) (ChoresRecurrenceOnce, error) {
+	row := q.db.QueryRowContext(ctx, deleteChoreRecurrenceOnce, id)
+	var i ChoresRecurrenceOnce
+	err := row.Scan(&i.ID, &i.DueDate)
 	return i, err
 }
 
@@ -157,6 +246,51 @@ func (q *Queries) ListMeals(ctx context.Context, arg ListMealsParams) ([]Meal, e
 			&i.Lunch,
 			&i.Snack2,
 			&i.Dinner,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOnceChores = `-- name: ListOnceChores :many
+SELECT chores.id, chores.user_id, chores.title, chores.recurrence_type, chores.recurrence_id, chores.assigned, chores.created, chores.last_updated, chores_recurrence_once.id, chores_recurrence_once.due_date FROM chores
+JOIN chores_recurrence_once  ON chores.recurrence_id = chores_recurrence_once.id
+WHERE user_id = ?
+`
+
+type ListOnceChoresRow struct {
+	Chore                Chore
+	ChoresRecurrenceOnce ChoresRecurrenceOnce
+}
+
+func (q *Queries) ListOnceChores(ctx context.Context, userID int64) ([]ListOnceChoresRow, error) {
+	rows, err := q.db.QueryContext(ctx, listOnceChores, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOnceChoresRow
+	for rows.Next() {
+		var i ListOnceChoresRow
+		if err := rows.Scan(
+			&i.Chore.ID,
+			&i.Chore.UserID,
+			&i.Chore.Title,
+			&i.Chore.RecurrenceType,
+			&i.Chore.RecurrenceID,
+			&i.Chore.Assigned,
+			&i.Chore.Created,
+			&i.Chore.LastUpdated,
+			&i.ChoresRecurrenceOnce.ID,
+			&i.ChoresRecurrenceOnce.DueDate,
 		); err != nil {
 			return nil, err
 		}

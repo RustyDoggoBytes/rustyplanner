@@ -45,3 +45,27 @@ INSERT INTO groceries
     (user_id, name, completed)
 VALUES (?, ?, ?)
 RETURNING *;
+
+-- name: ListOnceChores :many
+SELECT sqlc.embed(chores), sqlc.embed(chores_recurrence_once) FROM chores
+JOIN chores_recurrence_once  ON chores.recurrence_id = chores_recurrence_once.id
+WHERE user_id = ?;
+
+-- name: CreateChore :one
+INSERT INTO chores (user_id, title, recurrence_type, recurrence_id, assigned)
+VALUES (?, ?, ?, ?, ?)
+RETURNING *;
+
+-- name: CreateOnceRecurrence :one
+INSERT INTO chores_recurrence_once (due_date) VALUES (?)
+RETURNING *;
+
+-- name: DeleteChore :one
+DELETE FROM chores
+WHERE id = ? AND user_id = ?
+RETURNING *;
+
+-- name: DeleteChoreRecurrenceOnce :one
+DELETE FROM chores_recurrence_once
+where id = ?
+RETURNING *;

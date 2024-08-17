@@ -13,7 +13,9 @@ import (
 	"rustydoggobytes/planner/components"
 	"rustydoggobytes/planner/db"
 	"rustydoggobytes/planner/middlewares"
+	"rustydoggobytes/planner/routes"
 	"rustydoggobytes/planner/utils"
+	"strconv"
 	"time"
 )
 
@@ -155,19 +157,58 @@ func main() {
 	})
 
 	mux.HandleFunc("GET /chores", func(w http.ResponseWriter, r *http.Request) {
-		chores := []string{
-			"Take-out trash",
+		chores, err := repository.GetChores(userID)
+		if err != nil {
+			slog.Error("failed to get chores", "user_id", userID)
 		}
-		component := components.ChoresPage(chores)
+		pageData := routes.ChorePageData{
+			Chores: chores,
+			Error:  r.URL.Query().Get("error"),
+		}
+		component := components.ChoresPage(pageData)
 		component.Render(r.Context(), w)
 	})
 
 	mux.HandleFunc("POST /chores", func(w http.ResponseWriter, r *http.Request) {
-		chores := []string{
-			"Take-out trash",
+		err := r.ParseForm()
+		if err != nil {
+			slog.Error("failed to read chores form", err)
 		}
-		component := components.ChoresPage(chores)
+
+		recurrenceType := r.FormValue("frequency-type")
+		title := r.FormValue("title")
+		assignee := r.FormValue("assigned-to")
+		var chore db.Chores
+		switch recurrenceType {
+		case "once":
+			dueDate, err := time.Parse("2006-01-02", r.FormValue("once-due-date"))
+			if err != nil {
+				slog.Error("failed to parse date", err)
+				http.Redirect(w, r, "/chores?error="+err.Error(), http.StatusSeeOther)
+
+			}
+			chorePointer, err := repository.CreateChore(userID, title, assignee, dueDate)
+			if err != nil {
+				slog.Error("failed to create chore", err)
+				http.Redirect(w, r, "/chores?error="+err.Error(), http.StatusSeeOther)
+			}
+			chore = *chorePointer
+			break
+		}
+
+		component := components.ChoreListItem(chore)
 		component.Render(r.Context(), w)
+	})
+
+	mux.HandleFunc("DELETE /chores/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(r.PathValue("id"), 0, 64)
+		if err != nil {
+			slog.Error("failed to parse id", err)
+		}
+		err = repository.DeleteChore(userID, id)
+		if err != nil {
+			slog.Error("failed to delete item", "id", id, err)
+		}
 	})
 
 	mux.HandleFunc("GET /chores/partials/form", func(w http.ResponseWriter, r *http.Request) {
@@ -189,12 +230,12 @@ func main() {
 
 	address := fmt.Sprintf("%s:8080", host)
 	slog.Info("running server", "address", address)
+	loggingMux := middlewares.LoggingMiddleware(mux)
+	//protectedMux := middlewares.BasicAuthMiddleware(
+	//	loggingMux,
+	//	utils.GetEnv("AUTH_USER", "rusty"),
+	//	utils.GetEnv("AUTH_PASSWORD", "doggo"),
+	//)
 
-	protectedMux := middlewares.BasicAuthMiddleware(
-		mux,
-		utils.GetEnv("AUTH_USER", "rusty"),
-		utils.GetEnv("AUTH_PASSWORD", "doggo"),
-	)
-
-	log.Fatal(http.ListenAndServe(address, protectedMux))
+	log.Fatal(http.ListenAndServe(address, loggingMux))
 }

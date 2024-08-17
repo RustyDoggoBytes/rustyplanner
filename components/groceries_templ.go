@@ -154,7 +154,7 @@ func GroceryList(groceries []db.GroceryItem) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section><form hx-post=\"/groceries\" hx-target=\"#grocery-list\" hx-swap=\"afterbegin\"><fieldset role=\"group\"><input class=\"input\" type=\"text\" name=\"name\" id=\"grocery-input\" placeholder=\"Add a new item\"> <button class=\"button is-primary\" hx-post=\"/groceries\" hx-on::after-request=\"clearAndFocus(event)\">Add</button></fieldset></form></section><nav><h1>Groceries</h1><a href=\"/groceries\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section><form hx-post=\"/groceries\" hx-target=\"#grocery-list\" hx-swap=\"afterbegin\"><fieldset role=\"group\"><input class=\"input\" type=\"text\" name=\"name\" id=\"grocery-input\" placeholder=\"Add a new item\"> <button class=\"button is-primary\" hx-post=\"/groceries\" hx-on::after-request=\"clearAndFocus(event, &#39;grocery-input&#39;)\">Add</button></fieldset></form></section><nav><h1>Groceries</h1><a href=\"/groceries\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -172,7 +172,7 @@ func GroceryList(groceries []db.GroceryItem) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</table><script>\n\t\tfunction clearAndFocus(event) {\n            const $input = document.getElementById('grocery-input');\n            document.addEventListener('DOMContentLoaded', function () {\n                $input.focus();\n            });\n\n            if (event.detail.successful) {\n                $input.value = '';\n                // Delay focus for iOS devices\n                setTimeout(function () {\n                    $input.focus();\n                    // Scroll to the input if needed\n                    $input.scrollIntoView({behavior: \"smooth\", block: \"center\"});\n                }, 100);\n            }\n        }\n\t\t</script>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</table>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
